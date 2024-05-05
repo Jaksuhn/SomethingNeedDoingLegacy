@@ -7,9 +7,9 @@
     Author: UcanPatates  
 
     **********************
-    * Version  |  1.0.1  *
+    * Version  |  1.0.3  *
     **********************
-
+    -> 1.0.3  : Now checks if the nvavmesh is ready.
     -> 1.0.1  : Now You don't have to touch the snd settings.
     -> 1.0.0  : Added food usage safety checks and more.
     -> 0.0.2  : Beta version not finished
@@ -62,7 +62,7 @@ HowManyMinutes = 20
   --Options
     -- AutoHookPreset : you put your preset name here get it from AutoHook.
     -- HowManyMinutes : this setting is to move every x minutes
-    -- (defoult is 20 not recomended to make it more than 45)
+    -- (default is 20 not recomended to make it more than 30)
 
 
 --[[
@@ -78,7 +78,7 @@ HowManyMinutes = 20
 --4th var
 -- 0 means First spot to randomly select
 -- 1 means Second spot to randomly select
--- 99 is bailout and clear the 500cast thingy
+-- 500 is bailout and clear the 500cast thingy
 FishingSpot =
 {
   {520.7,193.7,-518.1,0}, -- First spot
@@ -89,23 +89,23 @@ FishingSpot =
   {536.9,192.2,-503.2, 1},
   {570.3,189.4,-502.7, 1},
 
-  {455.9,255.3,535.1, 99} --bailout
+  {455.9,255.3,535.1, 500} --bailout
 }
 
 
 -- Functions
-function setPropertyIfNotSet(propertyName, value)
+function setPropertyIfNotSet(propertyName)
   if GetSNDProperty(propertyName) == false then
-      SetSNDProperty(propertyName, value)
-      LogInfo("[SetSNDPropertys] " .. propertyName .. " set to " .. tostring(value))
+      SetSNDProperty(propertyName, "true")
+      LogInfo("[SetSNDPropertys] " .. propertyName .. " set to True")
   end
 end
 
 
-function unsetPropertyIfSet(propertyName, value)
+function unsetPropertyIfSet(propertyName )
   if GetSNDProperty(propertyName) then
-      SetSNDProperty(propertyName, value)
-      LogInfo("[SetSNDPropertys] " .. propertyName .. " set to " .. tostring(value))
+      SetSNDProperty(propertyName, "false")
+      LogInfo("[SetSNDPropertys] " .. propertyName .. " set to False")
   end
 end
 
@@ -221,6 +221,7 @@ function Repair()
   end
 end
 function WalkTo(valuex, valuey, valuez)
+  MeshCheck()
   PathfindAndMoveTo(valuex, valuey, valuez, false)
   while PathIsRunning() or PathfindInProgress() do
       yield("/wait 0.1")
@@ -245,8 +246,28 @@ function Dismount()
   end
   LogInfo("[Dismount] Completed")
 end
+function Truncate1Dp(num)
+  return truncate and ("%.1f"):format(num) or num
+end
+
+function MeshCheck()
+  local was_ready = NavIsReady()
+  if not NavIsReady() then
+    while not NavIsReady() do
+      LogInfo("[Debug]Building navmesh, currently at "..Truncate1Dp(NavBuildProgress()*100).."%")
+      yield("/wait 1")
+      local was_ready = NavIsReady()
+      if was_ready then
+        LogInfo("[Debug]Navmesh ready!")
+      end
+    end
+  else
+    LogInfo("[Debug]Navmesh ready!") 
+  end
+end
 
 function MoveToDiadem(RandomSelect)
+  MeshCheck()
   local X, Y, Z
   if IsInZone(939) then
     X, Y, Z = RandomSpot(RandomSelect)
@@ -280,7 +301,7 @@ function MoveToDiadem(RandomSelect)
     elseif RandomSelect==1 then
       local oceanX, oceanY, oceanZ = X +1.2, Y, Z +1.2
       WalkTo(oceanX, oceanY, oceanZ)
-    elseif RandomSelect==99 then
+    elseif RandomSelect==500 then
       local oceanX, oceanY, oceanZ = X +1.2, Y, Z -1.2
       WalkTo(oceanX, oceanY, oceanZ)
     end
@@ -289,7 +310,7 @@ function MoveToDiadem(RandomSelect)
 end
 
 function Bailout500Cast()
-  MoveToDiadem(99)
+  MoveToDiadem(500)
   PlayerTest()
   yield("/ahon")
   yield("/wait 3")
@@ -354,13 +375,13 @@ yield("/ahpreset " .. AutoHookPreset)
 CurrentJob = GetClassJobId()
 
 -- Set properties if they are not already set
-setPropertyIfNotSet("UseItemStructsVersion", "true")
-setPropertyIfNotSet("UseSNDTargeting", "true")
+setPropertyIfNotSet("UseItemStructsVersion")
+setPropertyIfNotSet("UseSNDTargeting")
 
 -- Unset properties if they are set
-unsetPropertyIfSet("StopMacroIfTargetNotFound", "false")
-unsetPropertyIfSet("StopMacroIfCantUseItem", "false")
-unsetPropertyIfSet("StopMacroIfItemNotFound", "false")
+unsetPropertyIfSet("StopMacroIfTargetNotFound")
+unsetPropertyIfSet("StopMacroIfCantUseItem")
+unsetPropertyIfSet("StopMacroIfItemNotFound")
 
 -- Main loop
 while true do
