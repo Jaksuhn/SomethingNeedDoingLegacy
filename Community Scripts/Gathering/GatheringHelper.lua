@@ -1,9 +1,8 @@
 --[[
-
     Name: GatheringHelper
     Description: General gathering node recorder and movement script for MIN/BTN
     Author: LeafFriend, plottingCreeper (food and repair)
-    Version: 0.1.5
+    Version: 0.1.5 GITHUB
     Needed Plugins: vnavmesh, Pandora
     Needed Plugin Settings: Pandora Quick Gather enabled
 
@@ -14,7 +13,16 @@
     4. Script will register found nodes and go back to them after visiting all of them once
 
     <Changelog>
-    0.1.5   - Added functionality to ignore nodes by name 
+    0.1.5   - Added workaround for not Closing the Distance when diving
+            - Implemented Medicine and Manual usage similar to Food usage
+            - Fixed addon checking for spearfishing
+            - Added MaterializeDialog check to remove YesAlready reliance
+            - Rewrote addon condition checking to use timeouts and addon visibility instead of IsPlayerAvailable()
+            - Edited reporting for class checking when Triangulate/Fanthom/Prospect is active and not on their respective class to include instructions to carry on
+            - Replaced /pcall with /callback
+    0.1.4.1 - Implemented Prospect/Triangulate/Fathom status checks
+            - Implemented node name whitelist
+            - Implemented Island Sanctuary compatibility
     0.1.4   - Corrected search function, implemented with generalised TargetNearestObjectKind()
             - Added functionality to ping, includes known undetected nodes when pinging to nodes_went
             - Implement rate-limiting Id_Print()
@@ -52,16 +60,34 @@
     -- Use plottingCreeper's MoveNear()
     - Implement node checker to wipe found_nodes if gathered item is not gatherable from current node
     - Implement better dislodgement logic
-
 --]]
 
 --Settings
+---General Consumables Settings
+consume_threshold = 10                                  --Maximum number of seconds to check if food is consumed
+
 ---Food Settings
-food_to_eat = false                                     --Name of the food you want to use, in quotes (ie. "[Name of food]"), or
-                                                        --Table of names of the foods you want to use (ie. {"[Name of food 1]", "[Name of food 2]"}), or
+food_to_eat = "Yakow Moussaka <hq>"                     --Name of the food you want to eat, in quotes (ie. "[Name of food]"), or
+                                                        --Table of names of the foods you want to eat (ie. {"[Name of food 1]", "[Name of food 2]"}), or
                                                         --Set false otherwise.
                                                         --Include <hq> if high quality. (i.e. "[Name of food] <hq>") DOES NOT CHECK ITEM COUNT YET
-eat_food_threshold = 10                                 --Maximum number of seconds to check if food is consumed
+                                                        --If a food buff is not up, script will parse through table until there is a named food to eat
+
+
+--Medicine Settings
+medicine_to_use = "Superior Spiritbond Potion <hq>"     --Name of the medicine you want to use, in quotes (ie. "[Name of medicine]"), or
+                                                        --Table of names of the medicine you want to use (ie. {"[Name of medicine 1]", "[Name of medicine 2]"}), or
+                                                        --Set false otherwise.
+                                                        --Include <hq> if high quality. (i.e. "[Name of medicine] <hq>") DOES NOT CHECK ITEM COUNT YET
+                                                        --If a medicine buff is not up, script will parse through table until there is a named medicine to use
+
+--Manual Settings
+manual_to_read = "Squadron Spiritbonding Manual"        --Name of the manual you want to read, in quotes (ie. "[Name of manual]"), or
+                                                        --Table of names of the manual you want to read (ie. {"[Name of manual 1]", "[Name of manual 2]"}), or
+                                                        --Set false otherwise.
+                                                        --DOES NOT CHECK ITEM COUNT YET
+                                                        --Script will parse through all manuals in the table and read said manual if the corresponding buff is not up
+                                                        --ONLY SUPPORTS MANUALS THAT GIVES A EQUALLY NAMED STATUS OR GATHERER'S GRACE
 
 ---Repair/Materia Settings
 do_repair   = "self"                                    --false, "npc" or "self". Add a number to set threshhold; "npc 10" to only repair if under 10%
@@ -69,27 +95,35 @@ do_extract  = true                                      --Set true or false to e
 do_reduce   = true                                      --Set true or false to perform aetherial reduction
 
 ---Gathering logic Settings
-ignored_nodes = {}                                      -- Name of nodes to be ignored if encountered while pinging. I.e. "Lush Vegetation", "Rocky Outcrop"
 num_inventory_free_slot_threshold = 1                   --Max number of free slots to be left before stopping script
 interval_rate = 0.1                                     --Seconds to wait for each action
 msgDelay = 3                                            --Seconds to wait to reprint the same message
 ping_radius = 100                                       --Radius of the gathering node search
 
+do_fly = true                                           --If true, will mount if distance to next node is greater than max_distance_to_walk [Might not work in Island Sanctuary]
 min_distance_to_dismount = 10                           --Minimum distance before dismounting while travelling to gathering node
 max_distance_to_walk = 30                               --Maximum distance to node, to walk to instead of to fly to
 max_distance_to_interact = 3                            --Maximum distance to gathering point to attempt to interact with
 
 timeout_threshold = 3                                   --Maximum number of seconds script will attempt to wait before timing out and continuing the script
-moving_timeout_threshold = 10                           --Maximum number of seconds script will wait during movement sections before assuming it is stuck and attempt to dislodge itself
+moving_timeout_threshold = 20                           --Maximum number of seconds script will wait during movement sections before assuming it is stuck and attempt to dislodge itself
 
 time_to_wait_after_gather = 1                           --Seconds to wait after finishing gathering and before looking for the next gathering node
 time_to_wait_after_dislodge = 1                         --Seconds to wait after attempting to dislodge
 max_random_wait_addon = 3                               --Max number of seconds to add onto waits
 
+whitelist = {}                                          --List of gathering node names to only search and gather from
+add_first_node_to_empty_whitelist = false               --If true, will add the first node's name to initially empty whitelist to avoid gathering from other node types
+
 --Diadem specific Settings
-diadem_moving_timeout_threshold = 30                      --Maximum number of seconds script will wait before assuming it is stuck in Diadem and attempt to dislodge itself
+diadem_whitelist = {}                                   --List of gathering node names to only search and gather from in Diadem
+diadem_moving_timeout_threshold = 30                    --Maximum number of seconds script will wait before assuming it is stuck in Diadem and attempt to dislodge itself
 diadem_range_to_target = 10                             --Maximum range to target use auger in Diadem
 diadem_auger_crystals = true                            --If true, will auger Corrupted Sprites
+
+--Island Sanctuary specific Settings
+sanctuary_whitelist = {"Island Apple Tree"}             --List of gathering node names to only search and gather from in Island Sanctuary
+sanctuary_moving_timeout_threshold = 30                 --Maximum number of seconds script will wait before assuming it is stuck in Diadem and attempt to dislodge itself
 
 ---Collectables Settings
 collectables_script_name = "AutoCollectables_SingleRun" --Name of collectables script in SND to run when collectable UI is detected
@@ -202,26 +236,6 @@ function Split (inputstr, sep)
     return t
 end
 
-function CheckIfNodeShouldBeIgnored(node)
-    node = node or ""
-    local node_name = ParseNodeDataString(node)[1] or "No Match"
-    local ignore_node = false
-
-    for _, name in ipairs(ignored_nodes) do
-      if ignore_node == false then
-        if string.find(node_name, name) then
-          ignore_node = true
-        end
-      end
-    end
-
-    if ignore_node then
-      Id_Print("Node included in ignore list. Skipping...")
-    end
-
-    return ignore_node
-end
-
 --Global Variable Initialisation
 found_nodes = Set{}
 nodes_went = Queue{}
@@ -267,28 +281,84 @@ end
 
 --Wrapper for class checking, node names to gather from and return current job_id
 function ClassCheck()
+    if GetZoneID() == 1055 then return end
     local job_id = GetClassJobId()
-    if job_id == last_job_id then return job_id end
-    --Change names of gathering nodes to gather from based on class
+    local empty_found_nodes = false
+
+    local repeat_check = false
     repeat
         job_id = GetClassJobId()
+        repeat_check = false
+
         if job_id == 16 then     --MIN
+            for _,status in pairs({"Prospect"}) do
+                if not HasStatus(status) then
+                    Id_Print('"'..status..'" is NOT active! Enable "'..status..'" to continue')
+                    empty_found_nodes = true
+                    repeat_check = true
+                end
+            end
+            for _,status in pairs({"Triangulate", "Fathom"}) do
+                if HasStatus(status) then
+                    Id_Print('"'..status..'" is active! Disable "'..status..'" to continue...')
+                    empty_found_nodes = true
+                    repeat_check = true
+                end
+            end
         elseif job_id == 17 then --BTN
+            for _,status in pairs({"Triangulate"}) do
+                if not HasStatus(status) then
+                    Id_Print('"'..status..'" is NOT active! Enable "'..status..'" to continue')
+                    empty_found_nodes = true
+                    repeat_check = true
+                end
+            end
+            for _,status in pairs({"Prospect", "Fathom"}) do
+                if HasStatus(status) then
+                    Id_Print('"'..status..'" is active! Disable "'..status..'" to continue...')
+                    empty_found_nodes = true
+                    repeat_check = true
+                end
+            end
         elseif job_id == 18 then --FSH
-        else --not a gatherer
+            for _,status in pairs({"Fathom"}) do
+                if not HasStatus(status) then
+                    Id_Print('"'..status..'" is NOT active! Enable "'..status..'" to continue')
+                    empty_found_nodes = true
+                    repeat_check = true
+                end
+            end
+            for _,status in pairs({"Prospect", "Triangulate"}) do
+                if HasStatus(status) then
+                    Id_Print('"'..status..'" is active! Disable "'..status..'" to continue...')
+                    empty_found_nodes = true
+                    repeat_check = true
+                end
+            end
+        else                     --Not a gatherer
+            repeat_check = true
+            empty_found_nodes = true
             Id_Print("Not a Disciple of Land!")
-            Id_Print("Change class to continue script")
-            yield("/wait "..interval_rate)
+            Id_Print("Change class to continue script.")
         end
-    until 16 <= job_id and job_id <= 18
-    --Empty found_nodes if job_id ~= last_job_id
-    if job_id ~= last_job_id then found_nodes = Set{} end
+
+        yield("/wait "..interval_rate)
+    until not repeat_check
+
+    if empty_found_nodes then
+        found_nodes = Set{}
+        Id_Print("Forgotten all found nodes...")
+        whitelist_set = Set(ZoneBasedWhitelist())
+        Id_Print("Remembering initial whitelist...")
+    end
     return job_id
 end
 
---Wrapper for food checking, and if want to consume, consume if not fooded
+--Wrapper for eating food, and if want to consume, consume if not fooded
 function EatFood()
     if type(food_to_eat) ~= "string" and type(food_to_eat) ~= "table" then return end
+    if GetZoneID() == 1055 then return end
+
     if not HasStatus("Well Fed") then
         local timeout_start = os.clock()
         local user_settings = {GetSNDProperty("UseItemStructsVersion"), GetSNDProperty("StopMacroIfItemNotFound"), GetSNDProperty("StopMacroIfCantUseItem")}
@@ -297,11 +367,11 @@ function EatFood()
         SetSNDProperty("StopMacroIfCantUseItem", "false")
         repeat
             if type(food_to_eat) == "string" then
-                Id_Print("Attempt to consume " .. food_to_eat)
+                Id_Print("Attempt to eat " .. food_to_eat)
                 yield("/item " .. food_to_eat)
             elseif type(food_to_eat) == "table" then
                 for _, food in ipairs(food_to_eat) do
-                    Id_Print("Attempting to consume " .. food, verbose)
+                    Id_Print("Attempting to eat " .. food, verbose)
                     yield("/item " .. food)
                     yield("/wait " .. math.max(interval_rate, 1))
                     if HasStatus("Well Fed") then break end
@@ -309,11 +379,79 @@ function EatFood()
             end
 
             yield("/wait " .. math.max(interval_rate, 1))
-        until HasStatus("Well Fed") or os.clock() - timeout_start > eat_food_threshold
+        until HasStatus("Well Fed") or os.clock() - timeout_start > consume_threshold
         SetSNDProperty("UseItemStructsVersion", tostring(user_settings[1]))
         SetSNDProperty("StopMacroIfItemNotFound", tostring(user_settings[2]))
         SetSNDProperty("StopMacroIfCantUseItem", tostring(user_settings[3]))
     end
+end
+
+--Wrapper for using medicine, and if want to consume, consume if not medicated
+function UseMedicine()
+    if type(medicine_to_use) ~= "string" and type(medicine_to_use) ~= "table" then return end
+    if GetZoneID() == 1055 then return end
+
+    if not HasStatus("Medicated") then
+        local timeout_start = os.clock()
+        local user_settings = {GetSNDProperty("UseItemStructsVersion"), GetSNDProperty("StopMacroIfItemNotFound"), GetSNDProperty("StopMacroIfCantUseItem")}
+        SetSNDProperty("UseItemStructsVersion", "true")
+        SetSNDProperty("StopMacroIfItemNotFound", "false")
+        SetSNDProperty("StopMacroIfCantUseItem", "false")
+        repeat
+            if type(medicine_to_use) == "string" then
+                Id_Print("Attempt to use " .. medicine_to_use)
+                yield("/item " .. medicine_to_use)
+            elseif type(medicine_to_use) == "table" then
+                for _, medicine in ipairs(medicine_to_use) do
+                    Id_Print("Attempting to use " .. medicine, verbose)
+                    yield("/item " .. medicine)
+                    yield("/wait " .. math.max(interval_rate, 1))
+                    if HasStatus("Medicated") then break end
+                end
+            end
+
+            yield("/wait " .. math.max(interval_rate, 1))
+        until HasStatus("Medicated") or os.clock() - timeout_start > consume_threshold
+        SetSNDProperty("UseItemStructsVersion", tostring(user_settings[1]))
+        SetSNDProperty("StopMacroIfItemNotFound", tostring(user_settings[2]))
+        SetSNDProperty("StopMacroIfCantUseItem", tostring(user_settings[3]))
+    end
+end
+
+--Wrapper for reading manuals, and if want to consume, consume if not read
+function ReadManual()
+    if type(manual_to_read) ~= "string" and type(manual_to_read) ~= "table" then return end
+    if GetZoneID() == 1055 then return end
+
+    local function HandleManual(manual_title)
+        if string.find(string.lower(manual_title), "rationing") ~= nil then return end --Do not process Rationing Manuals
+
+        if not (HasStatus(manual_title) or (HasStatus("Gatherer's Grace") and SetContains(Set{"Company-issue Survival Manual", "Company-issue Survival Manual II", "Commercial Survival Manual", "Revised Survival Manual"}, manual_title))) then
+            local timeout_start = os.clock()
+            local user_settings = {GetSNDProperty("UseItemStructsVersion"), GetSNDProperty("StopMacroIfItemNotFound"), GetSNDProperty("StopMacroIfCantUseItem")}
+            SetSNDProperty("UseItemStructsVersion", "true")
+            SetSNDProperty("StopMacroIfItemNotFound", "false")
+            SetSNDProperty("StopMacroIfCantUseItem", "false")
+            repeat
+                Id_Print("Attempt to read " .. manual_title)
+                Dismount()
+                yield("/item " .. manual_title)
+                repeat
+                    yield("/wait " .. math.max(interval_rate, 1))
+                until not IsPlayerCasting()
+            until HasStatus(manual_title) or (HasStatus("Gatherer's Grace") and SetContains(Set{"Company-issue Survival Manual", "Company-issue Survival Manual II", "Commercial Survival Manual", "Revised Survival Manual"}, manual_title)) or os.clock() - timeout_start > consume_threshold
+            SetSNDProperty("UseItemStructsVersion", tostring(user_settings[1]))
+            SetSNDProperty("StopMacroIfItemNotFound", tostring(user_settings[2]))
+            SetSNDProperty("StopMacroIfCantUseItem", tostring(user_settings[3]))
+        end
+    end
+
+    if type(manual_to_read) == "string" then
+        HandleManual(manual_to_read)
+    elseif type(manual_to_read) == "table" then
+        for _, manual in ipairs(manual_to_read) do HandleManual(manual) end
+    end
+
 end
 
 --Wrapper to handle stopping vnavmesh movement
@@ -354,6 +492,7 @@ function Dismount()
         local random_j = 0
         ::DISMOUNT_START::
         CheckNavmeshReady()
+
         local land_x
         local land_y
         local land_z
@@ -401,6 +540,7 @@ end
 
 --Wrapper to mount and fly
 function MountFly()
+    if not HasFlightUnlocked() or not do_fly then return end
     StopMoveFly()
     while not GetCharacterCondition(4) do
         yield('/gaction "Mount Roulette"')
@@ -418,6 +558,7 @@ end
 
 --Wrapper for repair/materia/aetherial reduction check, return true if repaired and extracted materia
 function RepairExtractReduceCheck()
+    if GetZoneID() == 1055 then return true end
     local repair_threshold
     function IsNeedRepair()
         if type(do_repair) ~= "string" then
@@ -447,24 +588,26 @@ function RepairExtractReduceCheck()
             Id_Print("Attempting to self repair...")
             while not IsAddonVisible("Repair") and not IsAddonReady("Repair") do
                 yield('/gaction "Repair"')
+                local timeout_start = os.clock()
                 repeat
                     yield("/wait "..interval_rate)
-                until IsPlayerAvailable()
+                until IsAddonVisible("Repair") and IsAddonReady("Repair") or os.clock() - timeout_start >= timeout_threshold
             end
-            yield("/pcall Repair true 0")
+            yield("/callback Repair true 0")
             repeat
                 yield("/wait "..interval_rate)
             until IsAddonVisible("SelectYesno") and IsAddonReady("SelectYesno")
-            yield("/pcall SelectYesno true 0")
+            yield("/callback SelectYesno true 0")
             repeat
                 yield("/wait "..interval_rate)
             until not IsAddonVisible("SelectYesno")
             while GetCharacterCondition(39) do yield("/wait "..interval_rate) end
             while IsAddonVisible("Repair") do
                 yield('/gaction "Repair"')
+                local timeout_start = os.clock()
                 repeat
                     yield("/wait "..interval_rate)
-                until IsPlayerAvailable()
+                until not IsAddonVisible("Repair") or os.clock() - timeout_start >= timeout_threshold
             end
             if NeedsRepair(repair_threshold) then
                 Id_Print("Self Repair failed!")
@@ -481,7 +624,7 @@ function RepairExtractReduceCheck()
         end
     end
 
-    if do_extract and CanExtractMateria() and GetInventoryFreeSlotCount() + 1 > num_inventory_free_slot_threshold then
+    if do_extract and CanExtractMateria() and GetInventoryFreeSlotCount() > num_inventory_free_slot_threshold then
         StopMoveFly()
         if GetCharacterCondition(4) then
             Id_Print("Attempting to dismount...")
@@ -490,21 +633,25 @@ function RepairExtractReduceCheck()
         Id_Print("Attempting to extract materia...")
         while not IsAddonVisible("Materialize") and not IsAddonReady("Materialize") do
                 yield('/gaction "Materia Extraction"')
+                local timeout_start = os.clock()
                 repeat
                     yield("/wait "..interval_rate)
-                until IsPlayerAvailable()
+                until IsAddonVisible("Materialize") and IsAddonReady("Materialize") or os.clock() - timeout_start >= timeout_threshold
         end
-        while CanExtractMateria() and GetInventoryFreeSlotCount() + 1 > num_inventory_free_slot_threshold do
-            yield("/pcall Materialize true 2 0")
+        while CanExtractMateria() and GetInventoryFreeSlotCount() > num_inventory_free_slot_threshold do
+            yield("/callback Materialize true 2 0")
+            yield("/wait "..interval_rate)
+            if IsAddonVisible("MaterializeDialog") and IsAddonReady("MaterializeDialog") then yield("/callback MaterializeDialog true 0") end
             repeat
-                yield("/wait 1")
+                yield("/wait "..interval_rate)
             until not GetCharacterCondition(39)
         end
         while IsAddonVisible("Materialize") do
             yield('/gaction "Materia Extraction"')
+            local timeout_start = os.clock()
             repeat
                 yield("/wait "..interval_rate)
-            until IsPlayerAvailable()
+            until not IsAddonVisible("Materialize") or os.clock() - timeout_start >= timeout_threshold
         end
         if CanExtractMateria() then
             Id_Print("Failed to fully extract all materia!")
@@ -528,14 +675,15 @@ function RepairExtractReduceCheck()
         local visible = IsNodeVisible("PurifyItemSelector", 1, 7) and not IsNodeVisible("PurifyItemSelector", 1, 6)
         while IsAddonVisible("PurifyItemSelector") do
             yield('/gaction "Aetherial Reduction"')
+            local timeout_start = os.clock()
             repeat
                 yield("/wait "..interval_rate)
-            until IsPlayerAvailable()
+            until not IsAddonVisible("PurifyItemSelector") or os.clock() - timeout_start >= timeout_threshold
         end
         return not visible
     end
 
-    if do_reduce and HasReducibles() and GetInventoryFreeSlotCount() + 1 > num_inventory_free_slot_threshold then
+    if do_reduce and HasReducibles() and GetInventoryFreeSlotCount() > num_inventory_free_slot_threshold then
         StopMoveFly()
         if GetCharacterCondition(4) then
             Id_Print("Attempting to dismount...")
@@ -551,16 +699,17 @@ function RepairExtractReduceCheck()
         until IsAddonVisible("PurifyItemSelector") and IsAddonReady("PurifyItemSelector")
         yield("/wait "..interval_rate)
         while not IsNodeVisible("PurifyItemSelector", 1, 7) and IsNodeVisible("PurifyItemSelector", 1, 6) and GetInventoryFreeSlotCount() > num_inventory_free_slot_threshold do
-            yield("/pcall PurifyItemSelector true 12 0")
+            yield("/callback PurifyItemSelector true 12 0")
             repeat
                 yield("/wait "..interval_rate)
             until not GetCharacterCondition(39)
         end
         while IsAddonVisible("PurifyItemSelector") do
             yield('/gaction "Aetherial Reduction"')
+            local timeout_start = os.clock()
             repeat
                 yield("/wait "..interval_rate)
-            until IsPlayerAvailable()
+            until not IsAddonVisible("PurifyItemSelector") or os.clock() - timeout_start >= timeout_threshold
         end
         Id_Print("Aetherial reduction complete!")
     end
@@ -578,7 +727,7 @@ function GetTargetData()
     local name = GetTargetName()
     local x = GetTargetRawXPos()
     local y = GetTargetRawYPos()
-    local z = GetTargetRawZPos()   
+    local z = GetTargetRawZPos()
     return name..","..x..","..y..","..z
 end
 
@@ -627,7 +776,23 @@ end
 function ZoneBasedMovingTimeoutThreshold()
     local zone_id = GetZoneID()
     if zone_id == 939 then return diadem_moving_timeout_threshold
+    elseif zone_id == 1055 then return sanctuary_moving_timeout_threshold
     else return moving_timeout_threshold end
+end
+
+--Return the appropriate whitelist after checking the current zone
+function ZoneBasedWhitelist()
+    local zone_id = GetZoneID()
+    if zone_id == 939 then return diadem_whitelist
+    elseif zone_id == 1055 then return sanctuary_whitelist
+    else return whitelist end
+end
+
+--Return the appropriate gatherable objectKind after checking the current zone
+function ZoneBasedObjectKind()
+    local zone_id = GetZoneID()
+    if zone_id == 1055 then return 14
+    else return 6 end
 end
 
 --Wrapper to check navmesh readiness
@@ -658,26 +823,22 @@ function TargetNearestObjectKind(objectKind, radius, subKind)
     local radius = radius or 0
     local subKind = subKind or 5
     local nearby_objects = GetNearbyObjectNames(radius^2, objectKind)
-local names = {}
+	local names = {}
 
     if nearby_objects and type(nearby_objects) == "userdata" and nearby_objects.Count > 0 then
         for i = 0, nearby_objects.Count - 1 do
-            if names[nearby_objects[i]] == nil then
-               names[nearby_objects[i]] = 0
-            else
-              names[nearby_objects[i]] = names[nearby_objects[i]] + 1
-            end
+			if names[nearby_objects[i]] == nil then names[nearby_objects[i]] = 0
+			else names[nearby_objects[i]] = names[nearby_objects[i]] + 1 end
 
             local target = nearby_objects[i] .. " <list." .. names[nearby_objects[i]] .. ">"
-            if not CheckIfNodeShouldBeIgnored(target) then
-              TargetWithSND(target)
-              if not GetTargetName() or nearby_objects[i] ~= GetTargetName()
-              or (objectKind == 2 and subKind ~= GetTargetSubKind())
-              or (objectKind == 2 and subKind == GetTargetSubKind() and GetTargetHPP() <= 0) then
-              elseif GetDistanceToTarget() < smallest_distance then
+            TargetWithSND(target)
+            if not GetTargetName() or nearby_objects[i] ~= GetTargetName()
+                or (SetLength(whitelist_set) > 0 and not SetContains(whitelist_set, GetTargetName()))
+                or (objectKind == 2 and subKind ~= GetTargetSubKind())
+                or (objectKind == 2 and subKind == GetTargetSubKind() and GetTargetHPP() <= 0) then
+            elseif GetDistanceToTarget() < smallest_distance then
                 smallest_distance = GetDistanceToTarget()
                 closest_target = target
-              end
             end
         end
         ClearTarget()
@@ -736,10 +897,16 @@ end
 
 --Wrapper to handle fly status when within or without given respective thresholds
 function CheckDistanceToWalkFly(node)
-    if GetDistanceToNode(node) < min_distance_to_dismount and GetCharacterCondition(4) then
+    --Workaround for pathfinding during diving not moving to node
+    if GetCharacterCondition(81) and GetDistanceToNode(node) < max_distance_to_interact and GetCharacterCondition(4) then
         StopMoveFly()
         Dismount()
-    elseif GetDistanceToNode(node) > max_distance_to_walk and ((not GetCharacterCondition(81) and not GetCharacterCondition(77)) or (GetCharacterCondition(81) and not GetCharacterCondition(4)))then
+    elseif GetDistanceToNode(node) < min_distance_to_dismount and GetCharacterCondition(4) then
+        StopMoveFly()
+        Dismount()
+    --elseif GetDistanceToNode(node) > max_distance_to_walk and ((not GetCharacterCondition(81) and not GetCharacterCondition(77)) or (GetCharacterCondition(81) and not GetCharacterCondition(4)))then
+    --Workaround for pathfinding during diving not moving to node
+    elseif (GetCharacterCondition(81) and not GetCharacterCondition(4)) or GetDistanceToNode(node) > max_distance_to_walk and ((not GetCharacterCondition(81) and not GetCharacterCondition(77)) or (GetCharacterCondition(81) and not GetCharacterCondition(4)))then
         MountFly()
     end
 end
@@ -867,7 +1034,7 @@ function main()
         CheckDiademAuger()
 
         Id_Print("Pinging for nearby Gathering Nodes...")
-        if not TargetNearestObjectKind(6, ping_radius) then
+        if not TargetNearestObjectKind(ZoneBasedObjectKind(), ping_radius) then
             --Add undeteced found_nodes within ping_radius to nodes_went
             local next = next
             if next(found_nodes) ~= nil then
@@ -882,10 +1049,11 @@ function main()
         else
             break
         end
-        
+
         if next_node_move_to == nil then
             Id_Print("Traversed all found nodes!")
             Id_Print("Go find another!")
+            StopMoveFly()
             MountFly()
             yield("/wait "..interval_rate)
         else
@@ -903,20 +1071,28 @@ function main()
         end
 
         yield("/wait "..interval_rate)
-    until GetCharacterCondition(6)
+    until (GetCharacterCondition(6) or GetCharacterCondition(32))
 
     Id_Print("Gathering Node found!")
     StopMoveFly()
     yield("/automove off")
-    if not GetCharacterCondition(6) then EatFood() end
+    if not GetCharacterCondition(6) then
+        EatFood()
+        UseMedicine()
+        ReadManual()
+    end
 
     repeat
         yield("/wait "..interval_rate)
-        TargetNearestObjectKind(6, ping_radius)
+        TargetNearestObjectKind(ZoneBasedObjectKind(), ping_radius)
         current_target = GetTargetData()
     until ParseNodeDataString(current_target)[4]
     if not SetContains(found_nodes, current_target) then Id_Print("[VERBOSE] New Gathering Node: "..PrintNode(current_target), verbose) end
     AddNodeDataToSetOrQueue(current_target, found_nodes, "found_nodes")
+    if SetLength(whitelist_set) <= 0 and add_first_node_to_empty_whitelist then
+        Id_Print("Adding "..ParseNodeDataString(current_target)[1].." to whitelist")
+        AddToSet(whitelist_set, ParseNodeDataString(current_target)[1])
+    end
     PathfindToFoundNode(current_target)
 
     --Movement logic, also dismounts if mounted when close enough
@@ -938,8 +1114,8 @@ function main()
 
         yield("/wait "..interval_rate)
         TargetWithSND(ParseNodeDataString(current_target)[1])
-    until (GetTargetName() ~= nil and GetDistanceToTarget() <= max_distance_to_interact) or GetCharacterCondition(6)
-    --until GetCharacterCondition(6)
+    until (GetTargetName() ~= nil and GetDistanceToTarget() <= max_distance_to_interact) or (GetCharacterCondition(6) or GetCharacterCondition(32))
+    --until (GetCharacterCondition(6) or GetCharacterCondition(32))
     StopMoveFly()
 
     ::START_GATHER::
@@ -948,14 +1124,25 @@ function main()
     --RecordDiademNode(current_target)
     last_node_gathered = current_target
     timeout_start = os.clock()
-    while not IsAddonVisible("Gathering") and os.clock() - timeout_start <= timeout_threshold do
-        yield("/interact")
-        yield("/wait "..interval_rate)
-    end
-    timeout_start = os.clock()
-    while not IsAddonReady("Gathering") and os.clock() - timeout_start <= timeout_threshold do
-        yield("/interact")
-        yield("/wait "..interval_rate)
+    if GetZoneID() == 1055 then
+        while not GetCharacterCondition(32) and os.clock() - timeout_start <= timeout_threshold do
+            yield("/interact")
+            yield("/wait "..interval_rate)
+        end
+        timeout_start = os.clock()
+        while GetCharacterCondition(32) and os.clock() - timeout_start <= timeout_threshold do
+            yield("/wait "..interval_rate)
+        end
+    else
+        while not (IsAddonVisible("Gathering") or IsAddonVisible("SpearFishing")) and os.clock() - timeout_start <= timeout_threshold do
+            yield("/interact")
+            yield("/wait "..interval_rate)
+        end
+        timeout_start = os.clock()
+        while not (IsAddonVisible("Gathering") or IsAddonVisible("SpearFishing")) and os.clock() - timeout_start <= timeout_threshold do
+            yield("/interact")
+            yield("/wait "..interval_rate)
+        end
     end
     if os.clock() - timeout_start > timeout_threshold then
         Id_Print("Timeout detected while attempting to gather...")
@@ -975,7 +1162,7 @@ function main()
         if collectables_script_name ~= "" and IsAddonVisible("GatheringMasterpiece") then yield("/runmacro "..collectables_script_name) end
 
         yield("/wait "..interval_rate)
-    until not GetCharacterCondition(6) and IsPlayerAvailable()
+    until not (GetCharacterCondition(6) or GetCharacterCondition(32)) and IsPlayerAvailable()
     Id_Print("Finished gathering from current gathering node!")
     Id_Print("Waiting for "..(time_to_wait_after_gather + math.random(0, max_random_wait_addon * 1000) / 1000).."s before moving on...")
     yield("/wait "..Truncate1Dp(time_to_wait_after_gather + math.random(0, max_random_wait_addon * 1000) / 1000))
@@ -987,6 +1174,7 @@ end
 --Run script
 Id_Print("----------Starting GatheringHelper----------")
 current_zone = GetZoneID()
+whitelist_set = Set(ZoneBasedWhitelist())
 while not stop_main do
     main()
 end
