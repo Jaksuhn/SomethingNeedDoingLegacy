@@ -1,4 +1,11 @@
 --[[
+
+	!!AUTHORS NOTE!!
+	Visland now has this built into the routing itself (thank you for implimenting it) so this is esentially obsolete? If you wanna use it still you can but, it is by far built into the plugin visland itsellf now. Thank you for reading this, and if you managed to skip over this then... welll *-shrugs-* XD
+
+]]
+
+--[[
   Description: Spearfishing Auto Desynth
   The script allows you to have it running a visland route (while spearfishing) and when you get to a certain inventory amount it will pause for you and proceed to desynth all your collectables.
   Version: 6.1 (Now with a built in route, and ability to add your own!)
@@ -29,15 +36,15 @@ slots_remaining = 5
   if NeedsRepair(Repair_Amount) then
     yield("/generalaction repair")
     yield("/waitaddon Repair")
-    yield("/pcall Repair true 0")
+    yield("/callback Repair true 0")
     yield("/wait 0.1")
     if IsAddonVisible("SelectYesno") then
-      yield("/pcall SelectYesno true 0")
+      yield("/callback SelectYesno true 0")
       yield("/wait 0.1")
     end
     while GetCharacterCondition(39) do yield("/wait 1") end
     yield("/wait 1")
-    yield("/pcall Repair true -1")
+    yield("/callback Repair true -1")
   end
 
 -- Starts the route/resumes it if you had it paused in visland
@@ -97,11 +104,11 @@ yield("/wait 0.5")
 
 while (not GetCharacterCondition(6)) and (not GetCharacterCondition(39)) do
   if IsAddonVisible("PurifyResult") then
-    yield("/pcall PurifyResult true 0")
+    yield("/callback PurifyResult true 0")
     yield("/wait 4")
     yield("/echo Desynth all items in a row")
   elseif (not IsAddonVisible("PurifyResult")) and IsAddonVisible("PurifyItemSelector") then
-    yield("/pcall PurifyItemSelector true 12 0")
+    yield("/callback PurifyItemSelector true 12 0")
     yield("/wait 4")
     yield("/echo Selecting first item")
   elseif (not IsAddonVisible("PurifyItemSelector")) and (not GetCharacterCondition(4)) then
@@ -109,7 +116,7 @@ while (not GetCharacterCondition(6)) and (not GetCharacterCondition(39)) do
     yield("/wait 0.5")
     yield("/echo Opening Desynth Menu")
   elseif IsAddonVisible("PurifyItemSelector") and GetCharacterCondition(4) then
-    yield("/pcall PurifyItemSelector True -1")
+    yield("/callback PurifyItemSelector true -1")
     yield("/wait 0.5")
     yield("/echo Desynth window was open while on mount")
   elseif GetCharacterCondition(4) then
@@ -126,8 +133,8 @@ while GetCharacterCondition(39) do
   yield("/wait 3")
   end 
 if not GetCharacterCondition(39) then
-  yield("/pcall PurifyAutoDialog True -2")
-  yield("/pcall PurifyItemSelector True -1")
+  yield("/callback PurifyAutoDialog true -2")
+  yield("/callback PurifyItemSelector true -1")
   yield("/visland resume")
 end
 
