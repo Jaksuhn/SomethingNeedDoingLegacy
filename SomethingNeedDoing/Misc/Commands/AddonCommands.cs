@@ -281,4 +281,86 @@ public class AddonCommands
     }
 
     public unsafe int GetNodeListCount(string addonName) => GenericHelpers.TryGetAddonByName<AtkUnitBase>(addonName, out var addon) ? addon->UldManager.NodeListCount : 0;
+
+    public unsafe ushort GetNodeWidth(string addonName, params int[] nodeNumbers)
+    {
+        if (nodeNumbers.Length == 0)
+            throw new MacroCommandError("At least one node number is required");
+
+        var ptr = Svc.GameGui.GetAddonByName(addonName, 1);
+        if (ptr == nint.Zero)
+            throw new MacroCommandError($"Could not find {addonName} addon");
+
+        var addon = (AtkUnitBase*)ptr;
+        var uld = addon->UldManager;
+
+        AtkResNode* node = null;
+        var debugString = string.Empty;
+        for (var i = 0; i < nodeNumbers.Length; i++)
+        {
+            var nodeNumber = nodeNumbers[i];
+
+            var count = uld.NodeListCount;
+            if (nodeNumber < 0 || nodeNumber >= count)
+                throw new MacroCommandError($"Addon node number must be between 0 and {count} for the {addonName} addon");
+
+            node = uld.NodeList[nodeNumber];
+            debugString += $"[{nodeNumber}]";
+
+            if (node == null)
+                throw new MacroCommandError($"{addonName} addon node {debugString} is null");
+
+            // More nodes to traverse
+            if (i < nodeNumbers.Length - 1)
+            {
+                if ((int)node->Type < 1000)
+                    throw new MacroCommandError($"{addonName} addon node {debugString} is not a component");
+
+                uld = ((AtkComponentNode*)node)->Component->UldManager;
+            }
+        }
+
+        return node->Width;
+    }
+
+    public unsafe ushort GetNodeHeight(string addonName, params int[] nodeNumbers)
+    {
+        if (nodeNumbers.Length == 0)
+            throw new MacroCommandError("At least one node number is required");
+
+        var ptr = Svc.GameGui.GetAddonByName(addonName, 1);
+        if (ptr == nint.Zero)
+            throw new MacroCommandError($"Could not find {addonName} addon");
+
+        var addon = (AtkUnitBase*)ptr;
+        var uld = addon->UldManager;
+
+        AtkResNode* node = null;
+        var debugString = string.Empty;
+        for (var i = 0; i < nodeNumbers.Length; i++)
+        {
+            var nodeNumber = nodeNumbers[i];
+
+            var count = uld.NodeListCount;
+            if (nodeNumber < 0 || nodeNumber >= count)
+                throw new MacroCommandError($"Addon node number must be between 0 and {count} for the {addonName} addon");
+
+            node = uld.NodeList[nodeNumber];
+            debugString += $"[{nodeNumber}]";
+
+            if (node == null)
+                throw new MacroCommandError($"{addonName} addon node {debugString} is null");
+
+            // More nodes to traverse
+            if (i < nodeNumbers.Length - 1)
+            {
+                if ((int)node->Type < 1000)
+                    throw new MacroCommandError($"{addonName} addon node {debugString} is not a component");
+
+                uld = ((AtkComponentNode*)node)->Component->UldManager;
+            }
+        }
+
+        return node->Height;
+    }
 }
