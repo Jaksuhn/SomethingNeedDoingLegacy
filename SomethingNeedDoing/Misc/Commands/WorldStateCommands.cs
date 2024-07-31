@@ -6,7 +6,6 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lumina.Excel.GeneratedSheets2;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Numerics;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -17,7 +16,21 @@ public class WorldStateCommands
 {
     internal static WorldStateCommands Instance { get; } = new();
 
-    private readonly List<uint> specialNodeIds = new([60432, 60433, 60437, 60438, 60445, 60461, 60462, 60463, 60464, 60465, 60466]);
+    private readonly List<uint> specialNodeIds = [
+        60432, // Harvesting
+        60433, // Logging
+        60437, // Quarrying
+        60438, // Mining
+        60445, // Fishing
+        60461, // Unspoiled Harvesting
+        60462, // Unspoiled Logging
+        60463, // Unspoiled Quarrying
+        60464, // Unspoiled Mining
+        60465, // Fishing (gold)
+        60466, // Unspoiled Fishing
+        60929, // Fishing (alt, spearfishing?)
+        60930 // Unspoiled Fishing (alt, spearfishing?)
+    ];
 
     public List<string> ListAllFunctions()
     {
@@ -122,34 +135,78 @@ public class WorldStateCommands
 
     private float DistanceToObject(Dalamud.Game.ClientState.Objects.Types.IGameObject o) => Vector3.DistanceSquared(o.Position, Svc.ClientState.LocalPlayer!.Position);
 
-    public unsafe Vector2? GetActiveMiniMapGatheringMarker(int level = 0)
+    public class SimpleGatheringMarker(string tooltip, string type, uint level, uint iconId, Vector2 position)
     {
+        public string Tooltip { get; } = tooltip;
+        public string Type { get; } = type;
+        public uint Level { get; } = level;
+        public uint IconId { get; } = iconId;
+        public Vector2 Position { get; } = position;
+
+        public override string ToString()
+        {
+            return $"{Tooltip} (Type = {Type}, IconId = {IconId}, Level = {Level}, Position = {Position})";
+        }
+    }
+
+    public unsafe List<SimpleGatheringMarker> GetActiveMiniMapGatheringMarkers()
+    {
+        var result = new List<SimpleGatheringMarker>();
+
         AgentMap* map = AgentMap.Instance();
         if (map == null || map->CurrentMapId == 0)
         {
-            return null;
+            return result;
         }
 
-        foreach (MiniMapGatheringMarker marker in map->MiniMapGatheringMarkers)
+        // This ensures order of precedence: Lay of the Land (0) > Legendary (1) > Unspoiled (2) > Others (3-5)
+        for (var i = 0; i < map->MiniMapGatheringMarkers.Length; i++)
         {
-            if (!specialNodeIds.Contains(marker.MapMarker.IconId))
+            var marker = map->MiniMapGatheringMarkers[i];
+            if (marker.MapMarker.IconId == 0)
             {
                 continue;
             }
 
-            if (level > 0)
-            {
-                var nodeLevel = int.Parse(Regex.Match(marker.TooltipText.ToString(), @"\d+").Value);
-                if (nodeLevel != level)
+            result.Add(new SimpleGatheringMarker(
+                tooltip: marker.TooltipText.ToString(),
+                type: i switch
                 {
-                    continue;
-                }
+                    0 => "Survey",
+                    1 => "Legendary",
+                    2 => "Unspoiled",
+                    4 => "Ephemeral",
+                    _ => $"Unknown ({i})"
+                },
+                level: uint.Parse(Regex.Match(marker.TooltipText.ToString(), @"\d+").Value),
+                iconId: marker.MapMarker.IconId,
+                position: new Vector2(
+                    marker.MapMarker.X / 16.0f,
+                    marker.MapMarker.Y / 16.0f
+                )
+            ));
+        }
+
+        return result;
+    }
+
+    public unsafe Vector2? GetActiveMiniMapGatheringMarker(int level = 0)
+    {
+
+        foreach (var marker in GetActiveMiniMapGatheringMarkers())
+        {
+            if (!specialNodeIds.Contains(marker.IconId))
+            {
+                Svc.Log.Verbose($"Unknown MiniMapGatheringMarker: {marker.Tooltip} [IconId: {marker.IconId}]");
+                continue;
             }
 
-            return new Vector2(
-                marker.MapMarker.X / 16,
-                marker.MapMarker.Y / 16
-            );
+            if (level > 0 && marker.Level != level)
+            {
+                continue;
+            }
+
+            return marker.Position;
         }
 
         return null;
