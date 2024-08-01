@@ -29,7 +29,7 @@ public class WorldStateCommands
         60465, // Fishing (gold)
         60466, // Unspoiled Fishing
         60929, // Fishing (alt, spearfishing?)
-        60930 // Unspoiled Fishing (alt, spearfishing?)
+        60930 // Unspoiled Fishing (Swimming Shadows)
     ];
 
     public List<string> ListAllFunctions()
@@ -176,6 +176,7 @@ public class WorldStateCommands
                     1 => "Legendary",
                     2 => "Unspoiled",
                     4 => "Ephemeral",
+                    5 => "Swimming Shadows",
                     _ => $"Unknown ({i})"
                 },
                 level: uint.Parse(Regex.Match(marker.TooltipText.ToString(), @"\d+").Value),
