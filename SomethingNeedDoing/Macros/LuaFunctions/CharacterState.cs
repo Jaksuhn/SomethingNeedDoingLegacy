@@ -153,7 +153,7 @@ public class CharacterState
     public unsafe int GetFCTotalMembers() => ((InfoProxyFreeCompany*)Framework.Instance()->UIModule->GetInfoModule()->GetInfoProxyById(InfoProxyId.FreeCompany))->TotalMembers;
 
     public unsafe void RequestAchievementProgress(uint id) => FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->RequestAchievementProgress(id);
-    public unsafe uint GetRequestedAchievementProgress() => FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->ProgressMax;
+    public unsafe uint GetRequestedAchievementProgress() => FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->ProgressCurrent;
     public unsafe bool IsAchievementComplete(int id) => FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->IsComplete(id); // requires the achievement menu to be loaded
 
     public unsafe uint GetCurrentBait() => PlayerState.Instance()->FishingBait;
