@@ -1119,7 +1119,7 @@ yield(""/echo done!"")" +
             else
             {
                 StringBuilder sb = new StringBuilder();
-                int itemsPerRow = 3;
+                int itemsPerRow = 6;
 
                 for (int i = 0; i < activeFlags.Count; i++)
                 {
@@ -1131,7 +1131,7 @@ yield(""/echo done!"")" +
                         sb.Append(", ");
                     }
 
-                    // Start a new line after every 3 items
+                    // Start a new line after every 6 items
                     if ((i + 1) % itemsPerRow == 0 && i < activeFlags.Count - 1)
                     {
                         ImGui.TextColored(ImGuiColors.HealerGreen, sb.ToString());
@@ -1158,7 +1158,6 @@ yield(""/echo done!"")" +
 
         private void DrawGameData()
         {
-            BeginScrollableContent();
             SectionTitle("Game Data Reference");
             ImGui.TextWrapped("Reference info for enumerations such as ObjectKind, InventoryType, etc.");
 
@@ -1177,8 +1176,6 @@ yield(""/echo done!"")" +
                         DrawEnumTable<InventoryType>("Enumerations for different inventory containers.");
                 }
             }
-
-            EndScrollableContent();
         }
 
         private void DrawEnumTable<T>(string? description) where T : Enum
