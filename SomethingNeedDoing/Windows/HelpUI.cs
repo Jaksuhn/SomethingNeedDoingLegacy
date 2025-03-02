@@ -23,10 +23,6 @@ using System.Text;
 
 namespace SomethingNeedDoing.Interface
 {
-    /// <summary>
-    /// Comprehensive help and configuration UI window.
-    /// Includes searching, multiple tabs, changelog, debug, etc.
-    /// </summary>
     internal class HelpUI : Window
     {
         //----------------------------------------------------------------------------------------
@@ -66,10 +62,6 @@ namespace SomethingNeedDoing.Interface
             "Game Data", "Changelog", "Debug"
         };
 
-        //----------------------------------------------------------------------------------------
-        // Misc UI State
-        //----------------------------------------------------------------------------------------
-
         private bool showOnlyActiveConditions = false;
 
         private readonly (string Name, string Description, string? Example)[] cliData =
@@ -86,10 +78,6 @@ namespace SomethingNeedDoing.Interface
 
         private readonly List<string> clickNames;
         private List<string> luaRequirePathsBuffer = new();
-
-        //----------------------------------------------------------------------------------------
-        // Constructor
-        //----------------------------------------------------------------------------------------
 
         public HelpUI() : base(WindowName)
         {
@@ -111,7 +99,7 @@ namespace SomethingNeedDoing.Interface
             // 1) Always show search bar
             DrawSearchBar();
 
-            // 2) If searching, show those results right away (but do NOT hide the tab bar)
+            // 2) If searching, show those results right away 
             if (isSearching && !string.IsNullOrWhiteSpace(searchText))
             {
                 DrawSearchResults();
@@ -1110,7 +1098,7 @@ yield(""/echo done!"")" +
         }
 
         /// <summary>
-        /// Shows a small child listing all currently active conditions, left-to-right as well.
+        /// Shows a small child listing all currently active conditions
         /// </summary>
         private void DrawActiveConditionsSummary()
         {
