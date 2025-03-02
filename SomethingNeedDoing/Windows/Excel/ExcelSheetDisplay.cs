@@ -11,22 +11,20 @@ using Lumina.Excel;
 namespace SomethingNeedDoing.Interface.Excel
 {
     /// <summary>
-    /// Displays an Excel sheet using ImGui tables with pagination for wide sheets.
+    /// Displays an Excel sheet using ImGui tables with pagination and a leading "RowId" column.
     /// </summary>
     public sealed class ExcelSheetDisplay
     {
         private IExcelSheet? _sheet;
         private ISheetWrapper? _wrapper;
-
         private SortedSet<int>? _curFilteredRows;
         private string _curSearchFilter = "";
         private CancellationTokenSource? _filterCts;
         private float? itemHeight;
-
         private readonly Dictionary<int, float> _columnWidths = new Dictionary<int, float>();
+
         private const float MIN_COLUMN_WIDTH = 40f;
         private const float PADDING = 20f;
-
         private const int PAGE_SIZE = 60;
         private int _currentPage = 0;
 
@@ -35,13 +33,11 @@ namespace SomethingNeedDoing.Interface.Excel
         /// <summary>
         /// Renders the Excel sheet.
         /// </summary>
-        /// <param name="sheet">The Excel sheet to render.</param>
         public void Draw(IExcelSheet sheet)
         {
             if (sheet == null)
                 return;
 
-            // Update sheet and wrapper if needed.
             if (_sheet != sheet)
             {
                 _sheet = sheet;
@@ -54,7 +50,6 @@ namespace SomethingNeedDoing.Interface.Excel
                 _columnWidths.Clear();
             }
 
-            // Draw search filter.
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X * ImGuiHelpers.GlobalScale - ImGui.GetStyle().ItemSpacing.X);
             bool filterDirty = ImGui.InputTextWithHint($"###{nameof(ExcelSheetDisplay)}filter", "Search...", ref _curSearchFilter, 256);
             if (filterDirty)
@@ -66,19 +61,25 @@ namespace SomethingNeedDoing.Interface.Excel
 
             float height = ImGui.GetContentRegionAvail().Y;
 
-            // No pagination if columns are within PAGE_SIZE.
             if (_sheet.Columns.Count <= PAGE_SIZE)
             {
-                using var table = ImRaii.Table($"{nameof(ExcelSheetDisplay)}", _sheet.Columns.Count,
+                using var table = ImRaii.Table($"{nameof(ExcelSheetDisplay)}", _sheet.Columns.Count + 1,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.NoSavedSettings,
                     new System.Numerics.Vector2(0, height));
-                if (!table) return;
+                if (!table)
+                    return;
 
-                ImGui.TableSetupScrollFreeze(0, 1);
+                ImGui.TableSetupScrollFreeze(1, 1);
                 ImGui.TableHeadersRow();
+
+                // Row ID header
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TableHeader("RowId");
+
+                // Data column headers
                 for (int i = 0; i < _sheet.Columns.Count; i++)
                 {
-                    ImGui.TableSetColumnIndex(i);
+                    ImGui.TableSetColumnIndex(i + 1);
                     string headerText = $"{i}: {_sheet.Columns[i].Type}";
                     ImGui.TableHeader(headerText);
                     if (ImGui.IsItemHovered())
@@ -103,7 +104,7 @@ namespace SomethingNeedDoing.Interface.Excel
                 int startColumn = _currentPage * PAGE_SIZE;
                 int endColumn = Math.Min(startColumn + PAGE_SIZE, _sheet.Columns.Count);
 
-                // Pagination controls.
+                // Pagination controls
                 float paginationHeight = 40f;
                 ImGui.BeginChild("PaginationControls", new System.Numerics.Vector2(0, paginationHeight), false);
                 if (ImGui.Button("Previous") && _currentPage > 0)
@@ -118,16 +119,23 @@ namespace SomethingNeedDoing.Interface.Excel
                 ImGui.EndChild();
 
                 int columnsToRender = endColumn - startColumn;
-                using var table = ImRaii.Table($"{nameof(ExcelSheetDisplay)}", columnsToRender,
+                using var table = ImRaii.Table($"{nameof(ExcelSheetDisplay)}", columnsToRender + 1,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.NoSavedSettings,
                     new System.Numerics.Vector2(0, height - paginationHeight));
-                if (!table) return;
+                if (!table)
+                    return;
 
-                ImGui.TableSetupScrollFreeze(0, 1);
+                ImGui.TableSetupScrollFreeze(1, 1);
                 ImGui.TableHeadersRow();
+
+                // Row ID header
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TableHeader("RowId");
+
+                // Paginated data column headers
                 for (int i = startColumn; i < endColumn; i++)
                 {
-                    ImGui.TableSetColumnIndex(i - startColumn);
+                    ImGui.TableSetColumnIndex(i - startColumn + 1);
                     string headerText = $"{i}: {_sheet.Columns[i].Type}";
                     ImGui.TableHeader(headerText);
                     if (ImGui.IsItemHovered())
@@ -147,47 +155,22 @@ namespace SomethingNeedDoing.Interface.Excel
             }
         }
 
-        private void CalculateColumnWidths(int startColumn, int endColumn)
-        {
-            for (int i = startColumn; i < endColumn; i++)
-            {
-                if (!_columnWidths.ContainsKey(i))
-                {
-                    string headerText = $"{i}: {_sheet!.Columns[i].Type}";
-                    _columnWidths[i] = Math.Max(MIN_COLUMN_WIDTH, ImGui.CalcTextSize(headerText).X + PADDING);
-                }
-            }
-
-            List<int> rowsToSample = _curFilteredRows?.ToList() ?? Enumerable.Range(0, _wrapper!.Count).ToList();
-            int sampleSize = Math.Min(100, rowsToSample.Count);
-            int sampleStep = Math.Max(1, rowsToSample.Count / sampleSize);
-
-            for (int i = 0; i < rowsToSample.Count; i += sampleStep)
-            {
-                int rowId = rowsToSample[i];
-                for (int col = startColumn; col < endColumn; col++)
-                {
-                    foreach (var (_, _, cellValue) in _wrapper!.ReadCellRows(rowId, col))
-                    {
-                        float width = ImGui.CalcTextSize(cellValue).X + PADDING;
-                        _columnWidths[col] = Math.Max(_columnWidths[col], width);
-                    }
-                }
-            }
-        }
-
         private void DrawRow(int rowId, int startColumn, int endColumn)
         {
             List<(int RowId, int SubRowId, string Value)> rows = _wrapper!.ReadCellRows(rowId, 0).ToList();
-            foreach (var (_, subRowId, _) in rows)
+            bool hasMultipleRows = rows.Count > 1;
+            foreach (var (rId, subRowId, _) in rows)
             {
                 ImGui.TableNextRow();
-                for (int i = 0; i < (endColumn - startColumn) && (startColumn + i) < endColumn; i++)
+                // Row ID cell
+                ImGui.TableNextColumn();
+                ImGui.TextUnformatted(hasMultipleRows ? $"{rId}.{subRowId}" : rId.ToString());
+                // Data cells
+                for (int i = startColumn; i < endColumn; i++)
                 {
                     ImGui.TableNextColumn();
                     ImGui.AlignTextToFramePadding();
-                    int columnIndex = startColumn + i;
-                    var (_, _, cellValue) = _wrapper.ReadCellRows(rowId, columnIndex).ElementAt(subRowId);
+                    var (_, _, cellValue) = _wrapper.ReadCellRows(rowId, i).ElementAt(subRowId);
                     ImGui.TextUnformatted(cellValue);
                 }
             }
