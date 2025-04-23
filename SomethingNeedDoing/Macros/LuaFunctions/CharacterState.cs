@@ -79,6 +79,16 @@ public class CharacterState
     public bool IsPlayerOccupied() => IsOccupied();
 
     public unsafe uint GetGil() => InventoryManager.Instance()->GetGil();
+    public unsafe uint GetRetainerGil() => InventoryManager.Instance()->GetRetainerGil();
+    public unsafe uint GetFreeCompanyGil() => InventoryManager.Instance()->GetFreeCompanyGil();
+    public unsafe uint GetGoldSaucerCoin() => InventoryManager.Instance()->GetGoldSaucerCoin();
+    public unsafe uint GetWolfMarks() => InventoryManager.Instance()->GetWolfMarks();
+    public unsafe uint GetAlliedSeals() => InventoryManager.Instance()->GetAlliedSeals();
+    public unsafe uint GetGrandCompanySeals(byte grandcompanyId) => InventoryManager.Instance()->GetCompanySeals(grandcompanyId);
+    public unsafe uint GetMaxGrandCompanySeals(byte grandcompanyId) => InventoryManager.Instance()->GetMaxCompanySeals(grandcompanyId);
+    public unsafe uint GetTomestoneCount(uint tomestoneItemId) => InventoryManager.Instance()->GetTomestoneCount(tomestoneItemId);
+    public unsafe int GetLimitedTomestoneWeeklyLimit() => InventoryManager.GetLimitedTomestoneWeeklyLimit();
+    public unsafe int GetWeeklyAcquiredTomestoneCount() => InventoryManager.Instance()->GetWeeklyAcquiredTomestoneCount();
 
     public uint GetClassJobId() => Svc.ClientState.LocalPlayer!.ClassJob.RowId;
     public uint GetHP() => Svc.ClientState.LocalPlayer?.CurrentHp ?? 0;
@@ -155,6 +165,21 @@ public class CharacterState
     public unsafe void RequestAchievementProgress(uint id) => FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->RequestAchievementProgress(id);
     public unsafe uint GetRequestedAchievementProgress() => FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->ProgressCurrent;
     public unsafe bool IsAchievementComplete(int id) => FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->IsComplete(id); // requires the achievement menu to be loaded
+
+    public unsafe bool IsTripleTriadCardUnlocked(ushort cardId) => UIState.Instance()->IsTripleTriadCardUnlocked(cardId); // cardId is TripleTriadCardResident
+    public unsafe bool IsMinionUnlocked(uint companionId) => UIState.Instance()->IsCompanionUnlocked(companionId);
+    public unsafe bool IsOrchestrionRollUnlocked(uint rollId) => PlayerState.Instance()->IsOrchestrionRollUnlocked(rollId);
+
+    public unsafe bool RequestResetTimestamps() => UIState.Instance()->RequestResetTimestamps();
+    public unsafe long GetNextMapAllowanceTimestamp() => UIState.Instance()->GetNextMapAllowanceTimestamp();
+    public unsafe long GetNextChallengeLogResetTimestamp() => UIState.Instance()->GetNextChallengeLogResetTimestamp();
+
+    public unsafe bool IsMapAllowance()
+    {
+        var nextMapAllowanceTimestamp = UIState.Instance()->GetNextMapAllowanceTimestamp();
+        var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        return nextMapAllowanceTimestamp <= currentTimestamp;
+    }
 
     public unsafe uint GetCurrentBait() => PlayerState.Instance()->FishingBait;
 
