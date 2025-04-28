@@ -6,6 +6,7 @@ using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ImGuiNET;
 using SomethingNeedDoing.Interface;
+using SomethingNeedDoing.IPC;
 using SomethingNeedDoing.Macros.Lua;
 
 namespace SomethingNeedDoing;
@@ -21,6 +22,8 @@ public sealed class Plugin : IDalamudPlugin
     internal static Config C => P.Config;
 
     private readonly Config Config = null!;
+
+    private readonly SNDProvider _sndProvider;
 
     public Plugin(IDalamudPluginInterface pluginInterface)
     {
@@ -48,6 +51,8 @@ public sealed class Plugin : IDalamudPlugin
             Service.AutoRetainerApi.OnCharacterPostprocessStep += CheckCharacterPostProcess;
             Service.AutoRetainerApi.OnCharacterReadyToPostProcess += DoCharacterPostProcess;
         });
+
+        _sndProvider = new();
     }
 
     private void DrawDevBarEntry()
