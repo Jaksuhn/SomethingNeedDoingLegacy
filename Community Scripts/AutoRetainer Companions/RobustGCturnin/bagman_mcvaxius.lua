@@ -250,11 +250,13 @@ local function shake_hands()
 			end
 			if tradename == fat_tony then
 				if GetGil() > 999999 then
-					yield("/callback InputNumeric true 1000000 <wait.1>") --this is just in case we want to specify/calculate the amount
+					yield("/callback InputNumeric true 1000000") --this is just in case we want to specify/calculate the amount
+					yield("/wait 1")
 				end
 				if GetGil() < 1000000 then
 					snaccman = GetGil() - bagmans_take
-					yield("/callback InputNumeric true ".. snaccman .." <wait.1>") --this is just in case we want to specify/calculate the amount
+					yield("/callback InputNumeric true ".. snaccman) --this is just in case we want to specify/calculate the amount
+					yield("/wait 1")
 				end
 				yield("/callback Trade true 0")
 				yield("/wait 4")
@@ -482,7 +484,8 @@ for i=1,#franchise_owners do
 			yield("/wait 1")
 			--yield("/waitaddon Nowloading <maxwait.15>")
 			yield("/wait 15")
-			yield("/waitaddon NamePlate <maxwait.600><wait.5>")
+			yield("/waitaddon NamePlate <maxwait.600>")
+			yield("/wait 5")
 			--]]
 			--normal small house shenanigans
 			if franchise_owners[i][3] == 0 then

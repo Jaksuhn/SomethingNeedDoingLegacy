@@ -196,7 +196,8 @@ for i=1,#franchise_owners do
 			yield("/wait 1")
 			--yield("/waitaddon Nowloading <maxwait.15>")
 			yield("/wait 15")
-			yield("/waitaddon NamePlate <maxwait.600><wait.5>")
+			yield("/waitaddon NamePlate <maxwait.600>")
+			yield("/wait 5")
 			--]]
 			--normal small house shenanigans
 			if franchise_owners[i][3] == 0 then

@@ -17,7 +17,7 @@ Configurations (NOT OPTIONAL.  THEY ARE ABSOLUTELY MANDATORY)
 Pandora -> actually have this disabled it causes problems.
 Simpletweaks -> targeting fix
 SND -> disable snd targeting + disable addon errors (everything under /target and /waitaddon)
-AD -> Turn off "Leave Duty"
+AD -> Turn off "Leave Duty" and or change to leave only when duty is complete and not path complete
 
 Yesalready configs (maybe only the first one is needed since the rest are done via callbacks w ya off) also make sure yesalready is on :p ad turns it off sometimes (???)
 	"YesNo"

@@ -20,7 +20,7 @@ in_saucer = 1
 while (mgf_counter < mgf_sucks) do
 --    yield("/send KEY_3")
 --    yield("<wait.0.35>")
---    yield("/pinteract <wait.1>")
+--    yield("/interact <wait.1>")
     yield("/callback FGSEnterDialog true 0")
     yield("/callback FGSEnterDialog true -2")
     yield("/wait 1.0")

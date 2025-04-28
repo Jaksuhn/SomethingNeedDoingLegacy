@@ -1,5 +1,16 @@
 --[[
-    
+
+    ********************************
+    *  PLEASE READ THIS!!!!!!!!!!  * 
+    ********************************
+
+	Hey, it's the author here. For everyone using this script, it's actually been made into a full plugin that I made! It actually handles all leve turnins
+	and not just Old Sharlayan. You can find the link for it here: 
+	https://github.com/LeontopodiumNivale14/ChilledLeves
+
+	and if you have any questions, you can ask in the puni.sh discord in #ffxiv-iceplugins
+	https://discord.com/channels/1001823907193552978/1356608740224405547
+
     ********************************
     *  Sharlayan [EW] Leve Turnin  * 
     ********************************
@@ -11,7 +22,7 @@
     ******************
     * Version  |  6  *
     ******************
-	
+
 	6     -> Should be my final fiddle with this. If you run out of leves, it SHOULD stop trying to pick it up.
 	5.2   -> If you're not on CUL, this won't run now. (Just... to save some headache on a pcall causing a crash)
 	5.1   -> I'm an idiot, and apperently can't type numbers correctly. SOOO. Properly collects the tsai item now

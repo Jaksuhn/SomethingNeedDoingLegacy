@@ -20,14 +20,16 @@ function fishing()
 		yield("/ays relog " ..FUTA_processors[lowestID][1][1])
 		yield("/wait 3")
 
-		yield("/waitaddon _ActionBar <maxwait.600><wait.5>")
+		yield("/waitaddon _ActionBar <maxwait.600>")
+		yield("/wait 5")
 	end
 
 	--ok we made it to the right character. let us continue.
 	
 	-- Teleport to Lisma
 	yield("/tp Limsa Lominsa Lower Decks <wait.5>")
-	yield("/waitaddon _ActionBar <maxwait.600><wait.10>")
+	yield("/waitaddon _ActionBar <maxwait.600>")
+	yield("/wait 10")
 	
 	yield("/ac sprint")
 	become_feesher()
@@ -43,7 +45,7 @@ function fishing()
 		yield("/wait 1")
 		yield("/lockon on")
 		yield("/wait 1")
-		yield("/pinteract")
+		yield("/interact")
 		yield("/wait 1")
 		yield("/callback SelectIconString true 1")
 		yield("/wait 1")
@@ -67,7 +69,7 @@ function fishing()
 		yield("/wait 1")
 		yield("/lockon on")
 		yield("/wait 1")
-		yield("/pinteract")
+		yield("/interact")
 		yield("/wait 1")
 		yield("/callback SelectIconString true 0")
 		yield("/wait 3")
@@ -95,8 +97,8 @@ function fishing()
 	fishqtest = GetCharacterCondition(91)
 	while (type(fishqtest) == "boolean" and fishqtest == false) do
 		yield("/target Dryskthota")
-		yield("/pinteract <wait.2>")
-		yield("/wait 1")
+		yield("/interact")
+		yield("/wait 3")
 		ungabunga()
 		yield("/wait 10")
 		fishqtest = GetCharacterCondition(91)
@@ -118,7 +120,7 @@ function fishing()
 		yield("/wait 5")
 	end
 	--if so then wait for 30 seconds then start heading to the visland location
-	yield("<wait.30.0>")
+	yield("/wait 30")
 
 	local randomNum = getRandomNumber(113,4043)
 	randomNum = (randomNum * -1) / 1000
@@ -152,8 +154,10 @@ function fishing()
 			if GetCharacterCondition(34)==true then
 				if GetCharacterCondition(35)==false then
 				--LEAVE MENU!!!!!!!!
-				yield("/send NUMPAD0 <wait.1.0>")
-				yield("/send NUMPAD0 <wait.1.0>")
+				yield("/send NUMPAD0")
+				yield("/wait 1")
+				yield("/send NUMPAD0")
+				yield("/wait 1")
 				end
 			end
 		end
@@ -162,7 +166,8 @@ function fishing()
 	visland_stop_moving()
 	yield("/wait 30")
 	ungabungabunga()
-	yield("/waitaddon NamePlate <maxwait.600><wait.5>")
+	yield("/waitaddon NamePlate <maxwait.600>")
+	yield("/wait 5")
 	
 	--if we are tp to limsa bell
 	if FUTA_processors[lowestID][1][2] == 4 then
@@ -188,7 +193,8 @@ function fishing()
 	--options 1 and 2 are fc estate entrance or fc state bell so thats only time we will tp to fc estate
 	if FUTA_processors[lowestID][1][2] == 0 or FUTA_processors[lowestID][1][2] == 1 then
 		--yield("/tp Estate Hall (Free Company)")
-		yield("/waitaddon NamePlate <maxwait.600><wait.5>")
+		yield("/waitaddon NamePlate <maxwait.600>")
+		yield("/wait 5")
 		yield("/li fc")
 		yield("/wait 1")
 		if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
@@ -196,23 +202,30 @@ function fishing()
 		if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
 		--yield("/waitaddon Nowloading <maxwait.15>")
 		yield("/wait 15")
-		yield("/waitaddon NamePlate <maxwait.600><wait.5>")
+		yield("/waitaddon NamePlate <maxwait.600>")
+		yield("/wait 5")
 	end
 
 	--normal small house shenanigans
 	if FUTA_processors[lowestID][1][2] == 0 then
-		yield("/hold W <wait.1.0>")
+		yield("/hold W")
+		yield("/wait 1")
 		yield("/release W")
-		yield("/target Entrance <wait.1>")
+		yield("/target Entrance")
+		yield("/wait 1")
 		yield("/lockon on")
-		yield("/automove on <wait.2.5>")
+		yield("/automove on")
+		yield("/wait 2.5")
 		yield("/interact")
-		yield("/automove off <wait.1.5>")
-		yield("/hold Q <wait.1.0>")
+		yield("/automove off")
+		yield("/wait 1.5")
+		yield("/hold Q")
+		yield("/wait 1")
 		yield("/interact")
 		yield("/release Q")
 		yield("/interact")
-		yield("/hold Q <wait.1.0>")
+		yield("/hold Q")
+		yield("/wait 1")
 		yield("/interact")
 		yield("/release Q")
 		yield("/interact")

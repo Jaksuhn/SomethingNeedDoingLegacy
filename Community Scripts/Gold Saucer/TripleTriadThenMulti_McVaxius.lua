@@ -40,7 +40,8 @@ function open_aetheryte()
  yield("/wait 0.5")
  yield("/send E")
  yield("/wait 0.5")
- yield("/pinteract <wait.1>")
+ yield("/interact")
+ yield("/wait 1")
  yield("/callback SelectString true 0")
 end
 
@@ -75,7 +76,8 @@ visland_stop_moving()
  yield("/automove")
 --proceed when not moving
  visland_stop_moving()
- yield("/pinteract <wait.5>")
+ yield("/interact")
+ yield("/wait 5")
 
 --target the manservant
 --House Fortemps Manservant
@@ -84,7 +86,8 @@ visland_stop_moving()
  yield("/automove")
 --proceed when not moving
  visland_stop_moving()
- yield("/pinteract <wait.5>")
+ yield("/interact")
+ yield("/wait 5")
 
 --wait a few seconds then start checking status of player condition until its no longer playing TT
 yield("/wait 5")

@@ -195,8 +195,6 @@ internal partial class ActiveMacro : IDisposable
 
             return command;
         }
-        //if (Node.Language == Language.CSharp)
-        //    CSharpManager.RunSnippet(Node.Contents);
 
         return StepIndex < 0 || StepIndex >= Steps.Count ? null : Steps[StepIndex];
     }

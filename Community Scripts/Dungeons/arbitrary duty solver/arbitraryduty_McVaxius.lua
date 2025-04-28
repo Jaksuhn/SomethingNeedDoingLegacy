@@ -594,7 +594,7 @@ local function arbitrary_duty()
 				if GetZoneID() == 1041 then
 					yield("/targetnpc")
 					yield("/wait 0.5")
-					yield("/pinteract")
+					yield("/interact")
 				end
 				yield("/wait "..doodie[whereismydoodie][5])
 				whereismydoodie = whereismydoodie + 1

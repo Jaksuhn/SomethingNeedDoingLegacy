@@ -15,13 +15,13 @@ public sealed class Plugin : IDalamudPlugin
 {
     internal string Name => "Something Need Doing (Expanded Edition)";
     internal string Prefix => "SND";
-    private const string Command = "/somethingneeddoing";
     internal string[] Aliases => ["/snd", "/pcraft"];
 
     internal static Plugin P { get; private set; } = null!;
     internal static Config C => P.Config;
 
     private readonly Config Config = null!;
+    private const string Command = "/somethingneeddoing";
 
     private readonly SNDProvider _sndProvider;
 
@@ -45,7 +45,7 @@ public sealed class Plugin : IDalamudPlugin
             Svc.PluginInterface.UiBuilder.OpenMainUi += EzConfigGui.Window.Toggle;
             Svc.PluginInterface.UiBuilder.Draw += DrawDevBarEntry;
 
-            EzCmd.Add(Command, OnChatCommand, "Open a window to edit various settings.");
+            EzCmd.Add(Command, OnChatCommand, "Open a window to edit various settings.", displayOrder: int.MaxValue);
             Aliases.ToList().ForEach(a => EzCmd.Add(a, OnChatCommand, $"{Command} Alias"));
 
             Service.AutoRetainerApi.OnCharacterPostprocessStep += CheckCharacterPostProcess;
@@ -72,7 +72,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void CheckCharacterPostProcess()
     {
-        if (C.ARCharacterPostProcessMacro is not { }) return;
+        if (C.ARCharacterPostProcessMacro is null) return;
         if (C.ARCharacterPostProcessExcludedCharacters.Any(x => x == Svc.ClientState.LocalContentId))
             Svc.Log.Info("Skipping post process macro for current character.");
         else

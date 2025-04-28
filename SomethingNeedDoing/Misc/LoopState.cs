@@ -3,7 +3,7 @@
 /// <summary>
 /// The state of the macro manager.
 /// </summary>
-internal enum LoopState
+public enum LoopState
 {
     /// <summary>
     /// Not logged in.

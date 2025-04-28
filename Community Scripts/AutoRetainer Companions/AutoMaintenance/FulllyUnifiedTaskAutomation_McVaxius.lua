@@ -23,7 +23,7 @@ What is working?
 	Updating Inventories, FC, Chocobo saddlebags for Atools by opening them.
 		******************************************************************************************
 		*DONT ASK ABOUT THIS IN PUNISH DISC OR YOU WILL BE SENT TO THE TEASPOON DROPPING CUPBOARD -> https://www.youtube.com/watch?v=TsFGJqXnqBE
-		*Repricing items in retainers first time 100%, 11% chance after that unless you configure it differently.
+		*Repricing items in retainers first time 100%, 3% chance after that unless you configure it differently.
 		you may need to turn off retainer window bailout in /ays expert   or set it to 30 or 60 seconds.. still tbd on this
 		*DONT ASK ABOUT THIS IN PUNISH DISC OR YOU WILL BE SENT TO THE TEASPOON DROPPING CUPBOARD -> https://www.youtube.com/watch?v=TsFGJqXnqBE
 		******************************************************************************************
@@ -41,7 +41,7 @@ Known issues and resolution
 	changing the table structure right now i can't do dynamically and safely (please help me!) so i am versioning things if i change the table structure so you
 	can at least keep your old configs / counters if you need them.    there is probably a nice way to do this without deleting your configs but this is where we are :(
 	also - if you dont have a fully busy roster of retainers, ocean fishing via this method isnt reccommended, you should just use the persistent ocean fishing script thats also on this repo somewhere. i won't be updating that one though.
-	
+	Automarket is donezo. it was nice while it lasted.  maybe a replacement will appear. i am looking at some script alternative but i don't like it.	for now i set the default value for illegal cleaning to 0 until a solution appears. you can leave existing configurations alone as if it comes back it will just start working again if you update _functions.lua
 
 --]]
 ------------------------------------------------------------
@@ -148,7 +148,8 @@ FUTA_defaults = {
     {
         {"Firstname Lastname@Server", 0}, 			--Y--{}[i][1][1..2]--name@server and return type 0 return home to fc entrance, 1 return home to a bell, 2 don't return home, 3 is gridania inn, 4 limsa bell near aetheryte, 5 personal estate entrance, 6 bell near personal home, 7 fc entrance and do nothing else
         {"FISH", 0},								--Y--{}[i][2][1..2]--level, 0 = dont do anything, 100 = dont do anything, 101 = automatically pick this char everytime (default indexed char), minimum = pick this char if no 101 exists (default indexed char)
-		{"CLEAN", 100, 0, 0, 50},					--Y--{}[i][3][1..5]--chance to do random cleaning/100 if 100 it will be changed to illegalcleaningresetvalue(default 3) after 1 run, process_gc_rank = 0=no,1=yes. expert_hack = 0=no,1=yes. clean_inventory = 0=no, >0 check inventory slots free and try to clean out inventory., set [5] to -1 if you want to disable gc cleaning for this char
+		{"CLEAN", 0, 0, 0, 50},						--Y--{}[i][3][1..5]--chance to do random cleaning/100 if 100 it will be changed to illegalcleaningresetvalue(default 3) after 1 run, process_gc_rank = 0=no,1=yes. expert_hack = 0=no,1=yes. clean_inventory = 0=no, >0 check inventory slots free and try to clean out inventory., set [5] to -1 if you want to disable gc cleaning for this char
+--		{"CLEAN", 100, 0, 0, 50},					--Y--{}[i][3][1..5]--chance to do random cleaning/100 if 100 it will be changed to illegalcleaningresetvalue(default 3) after 1 run, process_gc_rank = 0=no,1=yes. expert_hack = 0=no,1=yes. clean_inventory = 0=no, >0 check inventory slots free and try to clean out inventory., set [5] to -1 if you want to disable gc cleaning for this char
 		{"FUEL", 0, 0},								--Y--{}[i][4][1..3]--fuel safety stock trigger, fuel to buy up to i[4][3] amount when hitting i[4][2] amount or lower leave i[4][2] at 0 if you dont want it to process this
 		{"TT", 0, 0},								--N--{}[i][5][1..3]--minutes of TT, npc to play 1= roe 2= manservant
 		{"CUFF", 0},						    	--N--{}[i][6][1..2]--minutes of cufff-a-cur to run . assumes in front of an "entrance"
@@ -595,7 +596,7 @@ if equip_from_table == 1 then
 			yield("/wait 0.1")
 	end
 end
-
+yield("/vnav stop") --run case we running into wall at house
 if wheeequeheeheheheheheehhhee == 1 then
 	yield("/ays multi e") --if we had to toggle AR
 end

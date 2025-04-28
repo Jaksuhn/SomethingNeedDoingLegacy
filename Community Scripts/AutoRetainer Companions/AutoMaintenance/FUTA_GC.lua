@@ -127,22 +127,28 @@ function Final_GC_Cleaning()
 			yield("/echo We have Seal Sweetener online already!")
 		end
 		purchase_attempts = 0
-		yield("/freecompanycmd <wait.1>")
+		yield("/freecompanycmd")
+		yield("/wait 1")
 		fcpoynts = GetNodeText("FreeCompany", 15)
 		clean_fcpoynts = fcpoynts:gsub(",", "")
 		numeric_fcpoynts = tonumber(clean_fcpoynts)
 		buymax = 15
 		search_boof = "Seal Sweetener II"
-		yield("/freecompanycmd <wait.1>")
+		yield("/freecompanycmd")
+		yield("/wait 1")
 		while GetStatusTimeRemaining(414) == 0 and numeric_fcpoynts > fcpoint_min and GetItemCount(1) > 16000 do
 			--fire off the buff if they exist
 			yield("/echo FC Seal Buff II")
 			--yield("/callback FreeCompanyAction false 1 0u <wait.1>")
 			castattempt = 0
 			--credit to https://github.com/WigglyMuffin/SNDScripts/blob/main/vac_functions.lua  for finding the nodetext for this one :~D
-			yield("/freecompanycmd <wait.1>")
+			yield("/freecompanycmd")
+			yield("/wait 1")
 			
-			if IsAddonReady("FreeCompany") then yield("/callback FreeCompany false 0 4u <wait.1>") end
+			if IsAddonReady("FreeCompany") then
+				yield("/callback FreeCompany false 0 4u")
+				yield("/wait 1")
+			end
 			if purchase_attempts > 1 then
 				search_boof = "Seal Sweetener"
 				yield("/echo FC not ready for Seal Sweetener II")
@@ -155,11 +161,20 @@ function Final_GC_Cleaning()
 				yield("/wait 0.3")
 				if type(node_text) == "string" and node_text == search_boof and castattempt == 0 then --we hit it. time to cast it
 					castattempt = 1
-					if IsAddonReady("FreeCompany") then yield("/callback FreeCompanyAction false 1 "..zz.."u <wait.1>") end
+					if IsAddonReady("FreeCompany") then
+						yield("/callback FreeCompanyAction false 1 "..zz.."u")
+						yield("/wait 1")
+					end
 				end
 			end
-			if IsAddonReady("ContextMenu") then yield("/callback ContextMenu true 0 0 1u 0 0 <wait.1>") end
-			if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0 <wait.1>") end
+			if IsAddonReady("ContextMenu") then
+				yield("/callback ContextMenu true 0 0 1u 0 0")
+				yield("/wait 1")
+			end
+			if IsAddonReady("SelectYesno") then
+				yield("/callback SelectYesno true 0")
+				yield("/wait 1")
+			end
 			
 			--if seal buff fails to work then trigger buy seal buff from npc routine, but only do this if we can failsafe ourselves with 16k gil and 7k fc points
 			if GetStatusTimeRemaining(414) == 0 then
@@ -175,7 +190,8 @@ function Final_GC_Cleaning()
 						yield("/wait 2")
 						yield("/interact")
 						yield("/wait 2")
-						yield("/callback SelectString true 1 <wait.1>")
+						yield("/callback SelectString true 1")
+						yield("/wait 1")
 						yield("/wait 2")
 						if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
 						zungazunga()
@@ -188,8 +204,10 @@ function Final_GC_Cleaning()
 						yield("/wait 2")
 						yield("/interact")
 						yield("/wait 2")
-						yield("/callback SelectString true 0 <wait.1>")
-						yield("/callback SelectString true 0 <wait.1>")
+						yield("/callback SelectString true 0")
+						yield("/wait 1")
+						yield("/callback SelectString true 0")
+						yield("/wait 1")
 
 						buycount = 0
 						while (buycount < buymax) do
@@ -350,7 +368,8 @@ function Final_GC_Cleaning()
 		yield("/target Personnel Officer")
 		yield("/wait 1")
 		yield("/send NUMPAD0")
-		yield("/callback SelectString true 0 <wait.1>")
+		yield("/callback SelectString true 0")
+		yield("/wait 1")
 		yield("/send NUMPAD0")
 		yield("/wait 1")
 		yield("/send NUMPAD0")
@@ -361,8 +380,10 @@ function Final_GC_Cleaning()
 		yield("/wait 1")
 		yield("/send NUMPAD0")
 		yield("/wait 1")
-		yield("/send ESCAPE <wait.1.5>")
-		yield("/send ESCAPE <wait.1.5>")
+		yield("/send ESCAPE")
+		yield("/wait 1.5")
+		yield("/send ESCAPE")
+		yield("/wait 1.5")
 		yield("/wait 3")
 
 		floop = 0
@@ -377,10 +398,14 @@ function Final_GC_Cleaning()
 			yield("/wait 3")
 			if IsAddonReady("GrandCompanyRankUp") then yield("/callback GrandCompanyRankUp true 0") end
 			yield("/wait 1")
-			yield("/send ESCAPE <wait.1.5>")
-			yield("/send ESCAPE <wait.1.5>")
-			yield("/send ESCAPE <wait.1.5>")
-			yield("/send ESCAPE <wait.1.5>")
+			yield("/send ESCAPE")
+			yield("/wait 1.5")
+			yield("/send ESCAPE")
+			yield("/wait 1.5")
+			yield("/send ESCAPE")
+			yield("/wait 1.5")
+			yield("/send ESCAPE")
+			yield("/wait 1.5")
 			yield("/wait 3")
 			--wait for char condition 1
 			while GetCharacterCondition(32) == true and GetCharacterCondition(35) == true do
@@ -471,8 +496,8 @@ function FUTA_robust_gc()
 	end
 	weclean = 0
 	if process_players == 1  then
-		TeleportToGCTown()
-		ZoneTransition()
+		--TeleportToGCTown()
+		--ZoneTransition()
 		yield("/echo Walk to GC attempt 1")
 		yield("/wait 2")
 		WalkToGC()

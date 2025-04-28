@@ -291,7 +291,7 @@ yield("/e "..retainerNameText)
 
 yield("/target Frydwyb")
 yield("/wait 1")
-yield("/pinteract")
+yield("/interact")
 yield("/wait 1")
 
 repeat

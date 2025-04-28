@@ -108,10 +108,14 @@ function become_feesher()
 		yield("/wait 2")
 		yield("/interact")
 		yield("/wait 2")
-		yield("/callback SelectIconString true 1 <wait.2>")
-		yield("/callback SelectString true 0 <wait.2>")
-		yield("/callback Shop true 0 4 1 <wait.1.0>")
-		yield("/callback Shop true -1 <wait.1.0>")
+		yield("/callback SelectIconString true 1")
+		yield("/wait 2")
+		yield("/callback SelectString true 0")
+		yield("/wait 2")
+		yield("/callback Shop true 0 4 1")
+		yield("/wait 1")
+		yield("/callback Shop true -1")
+		yield("/wait 1")
 		visland_stop_moving()
 		ungabunga()
 	end
@@ -131,13 +135,17 @@ function become_feesher()
 end
 
 function ungabunga()
-	yield("/send ESCAPE <wait.1.5>")
+	yield("/send ESCAPE")
+	yield("/wait 1.5")
 	if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-	yield("/send ESCAPE <wait.1.5>")
+	yield("/send ESCAPE")
+	yield("/wait 1.5")
 	if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-	yield("/send ESCAPE <wait.1.5>")
+	yield("/send ESCAPE")
+	yield("/wait 1.5")
 	if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-	yield("/send ESCAPE <wait.1>")
+	yield("/send ESCAPE")
+	yield("/wait 1")
 	if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
 	yield("/wait 3")
 end
@@ -159,13 +167,17 @@ function ungabungabunga()
 	if GetCharacterCondition(1) == true then
 		tobungaorunga = 0
 		while tobungaorunga == 0 do
-			yield("/send ESCAPE <wait.1.5>")
+			yield("/send ESCAPE")
+			yield("/wait 1.5")
 			if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-			yield("/send ESCAPE <wait.1.5>")
+			yield("/send ESCAPE")
+			yield("/wait 1.5")
 			if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-			yield("/send ESCAPE <wait.1.5>")
+			yield("/send ESCAPE")
+			yield("/wait 1.5")
 			if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-			yield("/send ESCAPE <wait.1>")
+			yield("/send ESCAPE")
+			yield("/wait 1")
 			yield("/wait 3")
 			if IsPlayerAvailable() == true then
 				tobungaorunga = 1
@@ -255,25 +267,34 @@ function ZoneTransition()
 end
 
 function WalkToGC()
+	yield("/echo processing GC travel request....")
     if GetPlayerGC() == 1 then --toilet
-        if GetZoneID() ~= 128 then
-			yield("/li limsa")
-			yield("/li The Aftcastle") 
+        if GetZoneID() ~= 129 and GetZoneID() ~= 128 then
+			yield("/tp limsa")
+			yield("/echo attempting to tp to limsa")
 		    ZoneTransition()
 			toiletvisitor = 0
-			while GetZoneID() ~= 128 do  --sometimes things get stuck in limsa or pre-limsa this should solve it.
-				toiletvisitor = toiletvisitor + 1
-				if toiletvisitor > 5 then
-					yield("/pcraft stop")
-				end
-				yield("/li limsa")
-				visland_stop_moving()
-				yield("/li The Aftcastle") 
+			while GetZoneID() ~= 129 do  --sometimes things get stuck in limsa or pre-limsa this should solve it.
+				yield("/tp limsa")
 				ZoneTransition()
 			end
+			yield("/echo we in limsa")
+			yield("/wait 5")
+			while GetZoneID() ~= 128 do  --sometimes things get stuck in limsa or pre-limsa this should solve it.
+				toiletvisitor = toiletvisitor + 1
+				if toiletvisitor > 10 then
+					yield("/pcraft stop")
+					yield("/vnav stop")
+				end
+				yield("/li aftcastle") 
+				yield("/wait 5")
+				ZoneTransition()
+			end
+			yield("/echo we in upper decks")
 			zungazunga()
 			if movementtype == 1 then --visland hackery
-				yield("/visland exectemponce H4sIAAAAAAAACu2Wy07DMBBF/2XWkRU/Y2eHClQVaikFqTzEwlBXtZTEpXFAqOq/44ZE9LFDWSYrz53J6PrIGnsLE50bSGE4yGxeaohguHHVOigTV5gQzvX32tnCl5C+bGHqSuutKyDdwiOkWCEuZcIieIKUxSiO4BnShKCEYUV3IQpNRpeQhsRML2wVutB91dh9mtwUvs5MtV8tbbGAdKmz0kQwKrzZ6Hc/t3512/x+qDWeg7ty5b7aTLBVnrWoveIIrnLnWycjb/JmeVFXNMFdZUp/uL43H3Uwdm+NfO/deuCKRQMhKDc2ywauarYyc5U3x/bm2vo/X/vo2m2Oe+zFB5ubcaiLd9EZZsKRiqmK5QlniiRjuOfcFWeaIBnz5IwypxwT0R/njjAzgaSQmIsaNFVIhY+3sBnBVLAedkewhUAsID2b0JSJfnJ0NjkSjkigfHoRUkQEUbg/zB1hVhRRoqTgLWeScJr8subh0cFi2bP+F+vX3Q9/zfhXCwoAAA==")
+				--yield("/visland exectemponce H4sIAAAAAAAACu2Wy07DMBBF/2XWkRU/Y2eHClQVaikFqTzEwlBXtZTEpXFAqOq/44ZE9LFDWSYrz53J6PrIGnsLE50bSGE4yGxeaohguHHVOigTV5gQzvX32tnCl5C+bGHqSuutKyDdwiOkWCEuZcIieIKUxSiO4BnShKCEYUV3IQpNRpeQhsRML2wVutB91dh9mtwUvs5MtV8tbbGAdKmz0kQwKrzZ6Hc/t3512/x+qDWeg7ty5b7aTLBVnrWoveIIrnLnWycjb/JmeVFXNMFdZUp/uL43H3Uwdm+NfO/deuCKRQMhKDc2ywauarYyc5U3x/bm2vo/X/vo2m2Oe+zFB5ubcaiLd9EZZsKRiqmK5QlniiRjuOfcFWeaIBnz5IwypxwT0R/njjAzgaSQmIsaNFVIhY+3sBnBVLAedkewhUAsID2b0JSJfnJ0NjkSjkigfHoRUkQEUbg/zB1hVhRRoqTgLWeScJr8subh0cFi2bP+F+vX3Q9/zfhXCwoAAA==")
+				yield("/vnav moveto")
 				visland_stop_moving()
 			end
 		end
@@ -281,8 +302,12 @@ function WalkToGC()
 			WalkTo(94, 40.5, 74.5)
 		end
     elseif GetPlayerGC() == 2 then --vampire coven
+		while GetZoneID() ~= 132 do
+			yield("/tp grid")
+		    ZoneTransition()
+		end
 		if movementtype == 1 then --visland hackery
-			yield("/li Archers' Guild") 
+			yield("/li archers") 
 		    ZoneTransition()
 			yield("/visland exectemponce H4sIAAAAAAAACu2ZTW/bMAyG/4vOKUGJokT5NnRbUQztunZA94EdssVdDTRxlzgbhqL/ffRXP7CdBh11M2VHoJ+8eE1Sd+Z0ua5NZY4Ov2+blVmYo227v9WF03ZTa3i5/H3bNptuZ6rPd+as3TVd025MdWc+mMp6gRREFuajqQ4QKDCLtbwwn0wlBIFiTPca6V7HL02FC3O+XDV73YxAg5P2Z72uN91w52zZXV81m5WprpY3u3phjjddvV1+6y6b7vrt9POna1PmmuTuuv0139Hsdn9tMaRsF+bVuu3mTI67ej1dvhiemIJ3+3rXPb2+qH8MwUn7dVq+6Nrbw3azmljoypvm5uaw3U+vct7uu/p5epfLpnvMq49et9vne/SL75t1faLP4f3ib9pOIEQf3IwbIwZFHgfcMQFah6HgzoXbekAXgwsPvMX7INGNvB1EywV3PtzqH8k6P9BW2APl4IEYrRRV58KMEUiCpQmzw6Q2IgNsFnD6DxRR56Wtvj1atgrcpuBp/D6yatwic5F2JtiJgaI4HB1E7ZkT+TB+HclDQC/FR3LBFobgUhpZE3hkN5iKstYyJXr2vig7F+zAkKLEgbWFIIgcRssmBFW5wi8ukok1B3Ae/ezYQekqe5ppE1GKRdm5aHsPTCh9DzN4NvuUAobRRyxof4MFdjbYDgQTyT9Y2wQxavfui49kgk064bCB7GTaY9PoSI08BSqUM1FWj3CCkWfKVgvs+MCamC0W2Pm6GW1gtMrrG5hxIpISOnI8WwglH22xkFy8D7zW1T7JzNsBueTF+pE3QwwoEouZ5OLtELRHdNOA1YMldP34r6dNIKrtMs7Op27SPtEFbctn3E766eqkbgtiQ3Kl+svGm0kJE0ea3URsfz4z6RsholYmZaCdjXewYJmJJn1rp44auL6P788PgEPSqLh3Nt4RtLl5LE703IBJHWbAfSDq3+hj0XdO3iye7RPegj7wzNt6F32pTv6P95f7P8KvqWabHwAA")
 			visland_stop_moving()
@@ -291,8 +316,12 @@ function WalkToGC()
 			WalkTo(-68.5, -0.5, -8.5)
 		end
     elseif GetPlayerGC() == 3 then --best place in game
+		while GetZoneID() ~= 130 do
+			yield("/tp ul'dah")
+		    ZoneTransition()
+		end
 		if movementtype == 1 then --visland hackery
-			yield("/li Thaumaturges' Guild") 
+			yield("/li thaumaturge") 
 		    ZoneTransition()
 			yield("/visland exectemponce H4sIAAAAAAAACu2WSWvDMBCF/8ucXWFJI8v2raQLoaQ7pAs9uI1CBLGVxnJLCfnvnTgKTZdT8dE+6b2Rh6cPMWgF50VpIIfTQTOfQASnS9csSJ+7ypAcFx8LZytfQ/64gktXW29dBfkK7iA/4EoxybnECO4h58jiWEXwADkmLFGayzUpajQ8gjyO4LqY2IY6SUZi5N5MaSrfVi4LP5vaagL5tJjXJoJh5c2yePFj62cX4fd9L6SmhPXMve8qFK3+1aLNyyM4Lp3fJRl6U4blYbsjiKvG1H5/fWNeWzFyz8G+8W4xcNUkgCDnzM7nA9eEo1y7xpvv8caF9V+5NurELb/32Ji3tjQj2hevoz9Qo2KxEkptUYsNQgLNU4YpatWT7pB0xhQK/EH6gCdMaMGl7i91Z6hlxhKOQv9ALemuo85S1aPuDLVARoOaJnbLGneoNdmJFog96u5QayZRpRnuUGf0od4CzwRLBZWTHnh3E1swjsQ08OYEPNUyjO1YsSxBepn0wP8F/Gn9CUAVPgMlCgAA")
 			visland_stop_moving()
@@ -306,8 +335,10 @@ function WalkToGC()
 end
 
 function TargetedInteract(target)
-    yield("/target "..target.." <wait.0.5>")
-    yield("/interact <wait.1>")
+    yield("/target "..target)
+	yield("/wait 0.5")
+    yield("/interact")
+	yield("/wait 1")
 end
 
 function DidWeLoadcorrectly()
@@ -317,7 +348,8 @@ end
 function CharacterSafeWait()
      yield("/echo 15 second wait for char swap")
 	 yield("/wait 15")
-	 yield("/waitaddon NamePlate <maxwait.600> <wait.5>")
+	 yield("/waitaddon NamePlate <maxwait.600>")
+ 	 yield("/wait 5")
 	 --ZoneTransition()
 end
 
@@ -403,7 +435,8 @@ function return_to_fc()
 	--yield("/waitaddon Nowloading <maxwait.15>")
 	ZoneTransition()
 --	yield("/wait 15")
-	yield("/waitaddon NamePlate <maxwait.600><wait.5>")
+	yield("/waitaddon NamePlate <maxwait.600>")
+	yield("/wait 5")
 end
 
 function return_to_lair()
@@ -413,7 +446,8 @@ function return_to_lair()
 	--yield("/waitaddon Nowloading <maxwait.15>")
 --	yield("/wait 15")
 	ZoneTransition()
-	yield("/waitaddon NamePlate <maxwait.600><wait.5>")
+	yield("/waitaddon NamePlate <maxwait.600>")
+	yield("/wait 5")
 end
 
 function double_check_nav(x3, y3, z3)
@@ -447,13 +481,16 @@ end
 function return_fc_entrance()
 	--saw a weirdness where vnav never finished.. no errors and error traps. need more analysis. wasn't life stream the char isnt registered in it
 	yield("/echo attempting to enter nearby entrance to house")
-	yield("/hold W <wait.1.0>")
+	yield("/hold W")
+	yield("/wait 1")
 	yield("/release W")
-	yield("/target Entrance <wait.1>")
+	yield("/target Entrance")
+	yield("/wait 1")
 	yield("/echo vnavving over")
 	yield("/vnav moveto "..GetTargetRawXPos().." "..GetTargetRawYPos().." "..GetTargetRawZPos())
 	yield("/gaction jump")
-	yield("/target Entrance <wait.1>")
+	yield("/target Entrance")
+	yield("/wait 1")
 	yield("/echo vnavving over!")
 	yield("/vnav moveto "..GetTargetRawXPos().." "..GetTargetRawYPos().." "..GetTargetRawZPos())
 	yield("/wait 1")
@@ -461,11 +498,13 @@ function return_fc_entrance()
 	yield("/echo double check")
 	double_check_nav(GetTargetRawXPos(),GetTargetRawYPos(),GetTargetRawZPos())
 	visland_stop_moving()
-	yield("/target Entrance <wait.1>")
+	yield("/target Entrance")
+	yield("/wait 1")
 end
 
 function open_house_door()
-	yield("/target Entrance <wait.1>")
+	yield("/target Entrance")
+	yield("/wait 1")
 	yield("/interact")
 	yield("/wait 1")
 	if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
@@ -606,6 +645,9 @@ function enter_workshop()
 end
 
 function clean_inventory()
+	--* automarket is gone with api 12 - sorry friendskis
+--[[--RIP Automarket
+	
 	--oh yeah you'll need this. and asking about it on punish will result in right click -> block.
 	--https://raw.githubusercontent.com/ffxivcode/DalamudPlugins/main/repo.json
 	--*start cleaning??? need slash command
@@ -615,7 +657,8 @@ function clean_inventory()
 	yield("/target Summoning Bell")
 	yield("/wait 1")
 	yield("/lockon on")
-	yield("/automove on <wait.5.0>") --sometimes it takes a while to path over 3.5 seconds worked in testing and even 1.5 and 2.5 seconds worked but we gonna do 5 seconds to cover all issues
+	yield("/automove on") --sometimes it takes a while to path over 3.5 seconds worked in testing and even 1.5 and 2.5 seconds worked but we gonna do 5 seconds to cover all issues
+	yield("/wait 5")
 	yield("/interact")
 	yield("/automarket start")
 	yield("/wait 5")
@@ -669,6 +712,8 @@ function clean_inventory()
 	if exit_cleaning > 9 then
 		ungabungabunga()
 	end
+	
+--]]--RIP AUTOMARKET
 end
 
 function getRandomNumber(min, max)
@@ -703,7 +748,8 @@ function try_to_buy_fuel(restock_amt)
 		buyfail = 0 --counter
 
 		--get and set FC points
-		yield("/freecompanycmd <wait.1>")
+		yield("/freecompanycmd")
+		yield("/wait 1")
 		fcpoynts = GetNodeText("FreeCompany", 15)
 		clean_fcpoynts = fcpoynts:gsub(",", "")
 		numeric_fcpoynts = tonumber(clean_fcpoynts)
