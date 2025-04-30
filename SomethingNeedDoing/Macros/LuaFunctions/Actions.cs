@@ -1,5 +1,6 @@
 ﻿using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using System;
 using System.Collections.Generic;
@@ -83,6 +84,11 @@ internal class Actions
         return cooldown <= 0 || recastTime == 0 ? maxStacks : maxStacks - (int)Math.Ceiling(cooldown / (recastTime / maxStacks));
     }
 
+    public unsafe bool IsMainCommandUnlocked(uint command) => UIModule.Instance()->IsMainCommandUnlocked(command);
+    public unsafe void ExecuteMainCommand(uint RowId) => UIModule.Instance()->ExecuteMainCommand(RowId);
+
     public unsafe void ExecuteAction(uint actionID) => ActionManager.Instance()->UseAction(ActionType.Action, actionID);
     public unsafe void ExecuteGeneralAction(uint actionID) => ActionManager.Instance()->UseAction(ActionType.GeneralAction, actionID);
+    public unsafe void ExecuteChocoboRaceAbility(uint actionID) => ActionManager.Instance()->UseAction(ActionType.ChocoboRaceAbility, actionID);
+    public unsafe void ExecuteChocoboRaceItem(uint actionID) => ActionManager.Instance()->UseAction(ActionType.ChocoboRaceItem, actionID);
 }
