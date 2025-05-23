@@ -293,8 +293,8 @@ function WalkToGC()
 			yield("/echo we in upper decks")
 			zungazunga()
 			if movementtype == 1 then --visland hackery
-				--yield("/visland exectemponce H4sIAAAAAAAACu2Wy07DMBBF/2XWkRU/Y2eHClQVaikFqTzEwlBXtZTEpXFAqOq/44ZE9LFDWSYrz53J6PrIGnsLE50bSGE4yGxeaohguHHVOigTV5gQzvX32tnCl5C+bGHqSuutKyDdwiOkWCEuZcIieIKUxSiO4BnShKCEYUV3IQpNRpeQhsRML2wVutB91dh9mtwUvs5MtV8tbbGAdKmz0kQwKrzZ6Hc/t3512/x+qDWeg7ty5b7aTLBVnrWoveIIrnLnWycjb/JmeVFXNMFdZUp/uL43H3Uwdm+NfO/deuCKRQMhKDc2ywauarYyc5U3x/bm2vo/X/vo2m2Oe+zFB5ubcaiLd9EZZsKRiqmK5QlniiRjuOfcFWeaIBnz5IwypxwT0R/njjAzgaSQmIsaNFVIhY+3sBnBVLAedkewhUAsID2b0JSJfnJ0NjkSjkigfHoRUkQEUbg/zB1hVhRRoqTgLWeScJr8subh0cFi2bP+F+vX3Q9/zfhXCwoAAA==")
-				yield("/vnav moveto")
+				yield("/visland exectemponce H4sIAAAAAAAACu2Wy07DMBBF/2XWkRU/Y2eHClQVaikFqTzEwlBXtZTEpXFAqOq/44ZE9LFDWSYrz53J6PrIGnsLE50bSGE4yGxeaohguHHVOigTV5gQzvX32tnCl5C+bGHqSuutKyDdwiOkWCEuZcIieIKUxSiO4BnShKCEYUV3IQpNRpeQhsRML2wVutB91dh9mtwUvs5MtV8tbbGAdKmz0kQwKrzZ6Hc/t3512/x+qDWeg7ty5b7aTLBVnrWoveIIrnLnWycjb/JmeVFXNMFdZUp/uL43H3Uwdm+NfO/deuCKRQMhKDc2ywauarYyc5U3x/bm2vo/X/vo2m2Oe+zFB5ubcaiLd9EZZsKRiqmK5QlniiRjuOfcFWeaIBnz5IwypxwT0R/njjAzgaSQmIsaNFVIhY+3sBnBVLAedkewhUAsID2b0JSJfnJ0NjkSjkigfHoRUkQEUbg/zB1hVhRRoqTgLWeScJr8subh0cFi2bP+F+vX3Q9/zfhXCwoAAA==")
+				--yield("/vnav moveto") --wtf is this
 				visland_stop_moving()
 			end
 		end
@@ -961,9 +961,33 @@ function check_ro_helm()
 	end
 end
 
+function _distance(x1, y1, z1, x2, y2, z2) --not wanting overlap with script distance()
+	if type(x1) ~= "number" then x1 = 0 end
+	if type(y1) ~= "number" then y1 = 0 end
+	if type(z1) ~= "number" then z1 = 0 end
+	if type(x2) ~= "number" then x2 = 0 end
+	if type(y2) ~= "number" then y2	= 0 end
+	if type(z2) ~= "number" then z2 = 0 end
+	zoobz = math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+	if type(zoobz) ~= "number" then
+		zoobz = 0
+	end
+    --return math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+    return zoobz
+end
+
 function delete_my_items_please(how)
 	if how == 0 then
 		yield("/echo not deleting or desynthing items")
+		--* here we can check for distance to a retainer bell and go to it if its within 10 yalms
+		yield("/target bell")
+		yield("/wait 1")
+		nemm = "Summoning Bell"
+		poostance = _distance(GetPlayerRawXPos(), GetPlayerRawYPos(), GetPlayerRawZPos(), GetObjectRawXPos(nemm),GetObjectRawYPos(nemm),GetObjectRawZPos(nemm))
+		if poostance < 11 then
+			yield("/vnav moveto "..GetTargetRawXPos().." "..GetTargetRawYPos().." "..GetTargetRawZPos())
+			yield("/wait 4")
+		end
 	end
 	if how == 1 then
 		yield("/echo Attempting to delete items")
