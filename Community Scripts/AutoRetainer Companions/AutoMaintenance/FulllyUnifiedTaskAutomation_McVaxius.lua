@@ -117,6 +117,7 @@ yield("/echo Fully Unified Task Automation (F.U.T.A.) atools database updated")
 yield("/echo Non Aggregated Recursive Integration (N.A.R.I.) Initializing .....")
 ----------------------------------
 
+RestoreYesAlready() --bring it back so we can do stuff
 --Script+ar breaker stuff force fixed
 RestoreYesAlready()
 yield("/bmrai off")
@@ -601,3 +602,4 @@ if wheeequeheeheheheheheehhhee == 1 then
 	yield("/ays multi e") --if we had to toggle AR
 end
 --yield("/pcraft stop") --uncomment this if you want it to clear snd errors after script run
+PauseYesAlready() --we dont need this unless we do then plugin/etc will turn it on - this is so that questionable x cbt doesn't break for seasonals
