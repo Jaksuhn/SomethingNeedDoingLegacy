@@ -123,7 +123,7 @@ fool_flier = ini_check("fool_flier", "Beast with 3 backs")	-- if you have fly yo
 fulftype = ini_check("fulftype", "unchanged")				-- If you have lazyloot installed AND enabled (has to be done manually as it only has a toggle atm) can setup how loot is handled. Leave on "unchanged" if you don't want it to set your loot settings. Other settings include need, greed, pass
 force_gyasahl = ini_check("force_gyasahl", false) 	   		-- force gysahl green usage . maybe cause problems in towns with follow
 companionstrat = ini_check("companionstrat", "Free Stance") -- chocobo strat to use . Valid options are: "Follow", "Free Stance", "Defender Stance", "Healer Stance", "Attacker Stance"
-timefriction = ini_check("timefriction", 1)					-- how long to wait between "tics" of the main loop? 1 second default. smaller values will have potential crashy / fps impacts.
+timefriction = ini_check("timefriction", 0.3)					-- how long to wait between "tics" of the main loop? 1 second default. smaller values will have potential crashy / fps impacts.
 idle_shitter =  ini_check("idle_shitter", "/tomescroll")	-- what shall we do if we are idle, valid options are "list" "nothing" or any slash command, if you choose nothing, then after x tics of being idle it will do nothing, otherwise it will pick from a list randomly or run the specific emote you chose.  if your weird and evil you can throw in a snd script here too with /pcraft run asdfasdf
 idle_shitter_tic =  ini_check("idle_shitter_tic", 10)		-- how many tics till idle shitter?
 ----------------------------
@@ -136,7 +136,7 @@ socialdistancing = ini_check("socialdistancing", 5)			-- if this value is > 0 th
 socialdistancing_indoors = ini_check("socialdistancing_indoors", 0)	-- if this value is 1 then it will social distance indoors too! i set it to 1 as default. you can change it to 0 for defaults or if you need tigther following in dungeons/duties. its generally ok in dungeons except when it isn't haha. i changed the default to 0 because i got stuck in cuckerhell
 socialdistance_x_wiggle = ini_check("socialdistance_x_wiggle", 1) -- wiggle +/- this many yalms on the x axis during social distancing
 socialdistance_z_wiggle = ini_check("socialdistance_z_wiggle", 1) -- wiggle +/- this many yalms on the z axis during social distancing
-maxbistance = ini_check("maxbistance", 50) 					-- Max distance from fren that we will actually chase them, so that we dont get zone hopping situations ;p
+maxbistance = ini_check("maxbistance", 500) 				-- Max distance from fren that we will actually chase them, so that we dont get zone hopping situations ;p
 ddistance = ini_check("ddistance", 100) 					-- DEEP DUNGEON RELATED - if your in a deep dungeon should we even follow? add this to "cling" if we are in a DD, 100 is default
 follow_in_combat = ini_check("follow_in_combat", 42)		-- 0 = dont follow the leader while in combat, 1 = follow the leader while in combat, 42 = let a table decide based on job/role
 fdistance = ini_check("fdistance", 0) 						-- F.A.T.E. related - if your in a fate, add some more padding to "cling" default is 20 for now until some testing is done
