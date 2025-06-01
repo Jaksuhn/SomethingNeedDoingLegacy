@@ -406,7 +406,8 @@ duties_with_distancing = {
 {123123,"Moon 3 electric bigalii"},
 {123123,"Moon 4 electric boganwhore"},
 
-{123123,"Occult Crescent Horn South"},
+{1278,"Phantom Village"},
+{1252,"Occult Crescent Horn South"},
 {123123,"Occult Crescent Horn North"}
 }
 
