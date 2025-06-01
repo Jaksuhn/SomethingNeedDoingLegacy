@@ -1,5 +1,9 @@
 --[[
 Changelog
+v2.2
+fixed bunch of bugs related to forays
+added zoneids for sinus and oc
+
 v2.1
 social distancing tested properly
 emotes tested properly
@@ -165,7 +169,7 @@ feedmeitem = ini_check("feedmeitem", "Boiled Egg")			-- eatfood, in this case th
 ----------------------------
 ---MISC---------------------
 ----------------------------
-cbt_edse = ini_check("cbt_edse", 1)							-- CBT enhanced duty start / end. 0 is off, 1 is on.  if its "on" it will turn on this setting if so in a duty and off outside of one.  default is true to save time multiboxing.
+cbt_edse = ini_check("cbt_edse", 0)							-- CBT enhanced duty start / end. 0 is off, 1 is on.  if its "on" it will turn on this setting if so in a duty and off outside of one.  default is false because it does weird stuff and doesnt properly disable.
 spam_printer  = ini_check("spam_printer", 1)				-- set this to 0 if you dont want to see millions of echo messages reporting in on what frenrider is doing. default is 1 because everyone loves seeing garbage fill their chat windows
 ----------------------------
 ----------------------------
@@ -329,6 +333,7 @@ fartycardinality = 2 --leader ui cardinality
 autotosscount = 0 --i forget its something . i think discard counter
 did_we_toggle = 0 --so we aren't setting this setting multiple times. breaking its ability to function or causing ourselves a crash maybe
 are_we_social_distancing = 0 --var controlled by a function to see if we need to socially distance on a vnavmesh follow.
+fake_outdoors_foray = 0 --usually forays let us mount so we need to flag this
 idle_shitter_counter = 0 --counter for the idle shitters
 
 pandora_interact_toggler_count = 0 -- for checking on pandora interact settings.
@@ -359,6 +364,7 @@ idle_shitter_list = {
 "/winded",
 "/groundsit",
 "/lean",
+"/overreact",
 "/photograph"
 }
 
@@ -393,13 +399,13 @@ duties_with_distancing = {
 {920,"Hydatos"},
 {975,"Zadnor"},
 
-{123123,"Cosmo1"},
-{123123,"Cosmo2"},
-{123123,"Cosmo3"},
-{123123,"Cosmo4"},
+{1237,"Sinus Ardorum"}, 				--no mounts
+{123123,"Moon 2 electric boogaloo"},
+{123123,"Moon 3 electric bigalii"},
+{123123,"Moon 4 electric boganwhore"},
 
-{123123,"Shits Triangle1"},
-{123123,"Shits Triangle2"}
+{123123,"Occult Crescent Horn South"},
+{123123,"Occult Crescent Horn North"}
 }
 
 job_configs = {
@@ -686,7 +692,9 @@ function checkAREA()
 	end
 
 	are_we_social_distancing = are_we_distancing()
+	fake_outdoors_foray = 0
 	if are_we_social_distancing == 1 then
+		fake_outdoors_foray = 1
 		if socialdistancing > cling then
 			hcling = socialdistancing
 		end
@@ -982,7 +990,7 @@ while weirdvar == 1 do
 				checkzoi()
 			end
 
-			if GetCharacterCondition(34) == false then  --not in duty  
+			if GetCharacterCondition(34) == false or fake_outdoors_foray == 1 then  --not in duty  or we are in a foray
 				--SAFETY CHECKS DONE, can do whatever you want now with characterconditions etc			
 				--movement with formation - initially we test while in any situation not just combat
 				--check distance to fren, if its more than cling, then
