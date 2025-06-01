@@ -56,10 +56,12 @@ VBM/BMR (bmr has slash commands for following and more modules)
 RSR
 
 ***Few annoying problems that still exist and some thoughts
+*no mounting in forays??? i added fake_outdoors_foray to allow for that. we will have to actually test it later
+
 *how do we change instances #s maybe custom chat commands? lifestream /li # works. now to add nodetext scanning for group. also have to use target and lockon until lim fixes /li x without los
 	this is insanely buggy and perhaps crashy.. nodetext scanning too fast will break things
 
-*lazyloot is a toggle not on or off so you have to turn it on yourself
+*lazyloot is a toggle not on or off so you have to turn it on or off yourself
 
 *we can't get synced level (yet) I managed to isolate the part with nodetext but its using weird special characters i dont know how to convert to real numbers
 text = GetNodeText("_Exp", 3)
@@ -144,7 +146,7 @@ maxbistance = ini_check("maxbistance", 500) 				-- Max distance from fren that w
 ddistance = ini_check("ddistance", 100) 					-- DEEP DUNGEON RELATED - if your in a deep dungeon should we even follow? add this to "cling" if we are in a DD, 100 is default
 follow_in_combat = ini_check("follow_in_combat", 42)		-- 0 = dont follow the leader while in combat, 1 = follow the leader while in combat, 42 = let a table decide based on job/role
 fdistance = ini_check("fdistance", 0) 						-- F.A.T.E. related - if your in a fate, add some more padding to "cling" default is 20 for now until some testing is done
-formation = ini_check("formation", false)					-- Follow in formation? If false, then it will "cling", valid values are true or false - see note at bottom to see how formations work (cardinal and intercardinals)
+formation = ini_check("formation", false)					-- Follow in formation? If false, then it will "cling", valid values are true or false - see note at bottom to see how formations work (cardinal and intercardinals) --* doesnt allow mounting if on
 hcling_reset = ini_check("hcling_reset", 10) 				-- how many "tics" before hcling is 0 and the user is basically forced to navmesh over to fren - this also handles some special logic such as DD/FATE force cling
 ----------------------------
 ---COMBAT / AI---
@@ -387,7 +389,7 @@ zoi = {
 
 duties_with_distancing = {
 {886,"Firmament"},
-{939,"Diadem"},
+{939,"Diadem"}, --pillion doesn't seem to work here "You cannot ride pillion" red game message O_o
 
 {732,"Anemos"},
 {763,"Pagos"},
@@ -490,7 +492,9 @@ function returnCuratedFollow()
 end
 
 function returnCuratedPosition()
-	whichP = job_configs[returnJobbu()][4]
+	if can_i_lb() ~= false then 
+		whichP = job_configs[returnJobbu()][4]
+	end
 	if positional_in_combat < 42 then whichP = positional_in_combat end
 	beturn = "any"
 	if whichP == 0 then beturn =  "front" end
@@ -507,18 +511,22 @@ function returnCuratedJob() --not used yet.
 end
 
 if follow_in_combat == 42 then
-	if returnCuratedFollow() == 0 then
-		yield("/bmrai followcombat off")
-		yield("/echo Turning Follow in combat Off")
-	end
-	if returnCuratedFollow() == 1 then
-		yield("/bmrai followcombat on")
-		yield("/echo Turning Follow in combat On")
+	if can_i_lb() ~= false then 
+		if returnCuratedFollow() == 0 then
+			yield("/bmrai followcombat off")
+			yield("/echo Turning Follow in combat Off")
+		end
+		if returnCuratedFollow() == 1 then
+			yield("/bmrai followcombat on")
+			yield("/echo Turning Follow in combat On")
+		end
 	end
 end
 
 if maxAIdistance == 424242 then
-	maxAIdistance = returnCuratedDist()
+	if can_i_lb() ~= false then
+		maxAIdistance = returnCuratedDist()
+	end
 	yield("/echo Setting Base (non DD/F.A.T.E.) Cling to during combat -> "..maxAIdistance)
 end
 -------------
@@ -750,7 +758,7 @@ function clingmove(nemm)
 			--PathfindAndMoveTo(GetObjectRawXPos(nemm),GetObjectRawYPos(nemm),GetObjectRawZPos(nemm), false)
 			if bistance > hcling then
 				if are_we_social_distancing == 1 and are_we_in_i_zone == 0 then --if we need to spread AND we arent in a zone of interact
-					--*we will do some stuff here
+					--*we will do some stuff here - do i need to remove this commment? i think its sorted
 					fartX,fartZ = calculateBufferXY (GetPlayerRawXPos(),GetPlayerRawZPos(),GetObjectRawXPos(nemm),GetObjectRawZPos(nemm))
 					if GetCharacterCondition(77) == false then yield("/vnav moveto "..fartX.." "..GetObjectRawYPos(nemm).." "..fartZ) end
 					if GetCharacterCondition(77) == true then yield("/vnav flyto "..fartX.." "..GetObjectRawYPos(nemm).." "..fartZ) end
@@ -778,15 +786,15 @@ function clingmove(nemm)
 		if zclingtype == 2 then
 			bistance = distance(GetPlayerRawXPos(), GetPlayerRawYPos(), GetPlayerRawZPos(), GetObjectRawXPos(nemm),GetObjectRawYPos(nemm),GetObjectRawZPos(nemm))
 			if bistance < maxbistance then
-				yield("/bmrai followtarget on") --* verify this is correct later when we can load dalamud
+				yield("/bmrai followtarget on")
 				yield("/bmrai followoutofcombat on")
-				yield("/bmrai follow "..nemm) 	  --* verify this is correct later when we can load dalamud
+				yield("/bmrai follow "..nemm)
 				did_we_try_to_move = 1
 			end
 			if bistance > maxbistance then --follow ourselves if fren too far away or it will do weird shit
-				yield("/bmrai followtarget on") --* verify this is correct later when we can load dalamud
+				yield("/bmrai followtarget on")
 				yield("/bmrai followoutofcombat on")
-				yield("/bmrai follow "..GetCharacterName()) 	  --* verify this is correct later when we can load dalamud
+				yield("/bmrai follow "..GetCharacterName())
 				gawk_gawk_3000("too far! stop following!")
 				did_we_try_to_move = 1
 			end
