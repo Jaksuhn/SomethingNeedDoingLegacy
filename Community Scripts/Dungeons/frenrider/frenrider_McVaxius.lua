@@ -758,7 +758,7 @@ function clingmove(nemm)
 			--gawk_gawk_3000("x->"..GetObjectRawXPos(nemm).."y->"..GetObjectRawYPos(nemm).."z->"..GetObjectRawZPos(nemm))--if its 0,0,0 we are not gonna do shiiiit.
 			--PathfindAndMoveTo(GetObjectRawXPos(nemm),GetObjectRawYPos(nemm),GetObjectRawZPos(nemm), false)
 			if bistance > hcling then
-				if are_we_social_distancing == 1 and are_we_in_i_zone == 0 and bistance > (hcling + socialdistance_x_wiggle/2 + socialdistance_y_wiggle/2) then --if we need to spread AND we arent in a zone of interact and not already within the buffer area
+				if are_we_social_distancing == 1 and are_we_in_i_zone == 0 and bistance > (hcling + socialdistance_x_wiggle/2 + socialdistance_z_wiggle/2) then --if we need to spread AND we arent in a zone of interact and not already within the buffer area
 					--*we will do some stuff here - do i need to remove this commment? i think its sorted
 					fartX,fartZ = calculateBufferXY (GetPlayerRawXPos(),GetPlayerRawZPos(),GetObjectRawXPos(nemm),GetObjectRawZPos(nemm))
 					if GetCharacterCondition(77) == false then yield("/vnav moveto "..fartX.." "..GetObjectRawYPos(nemm).." "..fartZ) end
