@@ -15,7 +15,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-          ref: ${{ github.ref_name == 'v*.*-tt' && 'testing' || 'main' }}
+          fetch-depth: 0
+
+      - name: Determine Branch
+        id: branch
+        run: |
+          if [[ "${{ github.ref }}" == *-tt ]]; then
+            echo "branch=testing" >> $GITHUB_OUTPUT
+          else
+            echo "branch=main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Switch to Correct Branch
+        run: |
+          git fetch origin ${{ steps.branch.outputs.branch }}
+          git checkout ${{ steps.branch.outputs.branch }}
 
       - name: Get Tag Name
         run: echo "tag=$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')" >> $GITHUB_ENV
