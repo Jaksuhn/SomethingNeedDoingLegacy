@@ -76,7 +76,7 @@ jobs:
         run: dotnet restore
 
       - name: Build Project
-        run: dotnet build --configuration Release SomethingNeedDoing/SomethingNeedDoing.csproj -p:AssemblyVersion=${{ env.tag }}
+        run: dotnet build --configuration Release SomethingNeedDoing/SomethingNeedDoing.csproj -p:AssemblyVersion=$(echo ${{ env.tag }} | sed 's/-.*$//')
 
       - name: Publish Version
         uses: PunishXIV/dynamis-action@v1
