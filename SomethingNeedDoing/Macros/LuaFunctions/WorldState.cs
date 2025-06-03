@@ -88,6 +88,26 @@ public class WorldState
     public unsafe uint GetFateEventItem(ushort fateID) => FateManager.Instance()->GetFateById(fateID)->EventItem;
     #endregion
 
+    #region DynamicEvents
+    public unsafe List<byte> GetOccultCrescentEvents()
+        => PublicContentOccultCrescent.GetInstance()->DynamicEventContainer.Events.ToArray()
+        .Where(ce => ce.State != DynamicEventState.Inactive)
+        .Select(ce => ce.EventType)
+        .ToList();
+
+    public unsafe byte GetOccultCrescentEventState(ushort eventID)
+        => PublicContentOccultCrescent.GetInstance()->DynamicEventContainer.Events.ToArray()
+        .Where(ce => ce.EventType == eventID)
+        .Select(ce => (byte)ce.State)
+        .FirstOrDefault();
+
+    public unsafe byte GetOccultCrescentEventProgress(ushort eventID)
+        => PublicContentOccultCrescent.GetInstance()->DynamicEventContainer.Events.ToArray()
+        .Where(ce => ce.EventType == eventID)
+        .Select(ce => ce.Progress)
+        .FirstOrDefault();
+    #endregion
+
     public float DistanceBetween(float x1, float y1, float z1, float x2, float y2, float z2) => Vector3.Distance(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2));
 
     public unsafe float GetContentTimeLeft() => EventFramework.Instance()->GetInstanceContentDirector()->ContentDirector.ContentTimeLeft;
