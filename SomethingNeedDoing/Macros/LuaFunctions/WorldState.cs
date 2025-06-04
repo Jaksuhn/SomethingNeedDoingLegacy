@@ -89,23 +89,25 @@ public class WorldState
     #endregion
 
     #region DynamicEvents
-    public unsafe List<byte> GetOccultCrescentEvents()
+    private unsafe FFXIVClientStructs.FFXIV.Client.Game.InstanceContent.DynamicEvent GetOccultCrescentEventById(int eventID)
+        => PublicContentOccultCrescent.GetInstance()->DynamicEventContainer.Events[eventID];
+
+    public unsafe List<int> GetOccultCrescentEvents()
         => PublicContentOccultCrescent.GetInstance()->DynamicEventContainer.Events.ToArray()
-        .Where(ce => ce.State != DynamicEventState.Inactive)
-        .Select(ce => ce.EventType)
+        .Select((ce, i) => new { Item = ce, Index = i })
+        .Where(ce => ce.Item.State != DynamicEventState.Inactive)
+        .Select(ce => ce.Index)
         .ToList();
 
-    public unsafe byte GetOccultCrescentEventState(ushort eventID)
-        => PublicContentOccultCrescent.GetInstance()->DynamicEventContainer.Events.ToArray()
-        .Where(ce => ce.EventType == eventID)
-        .Select(ce => (byte)ce.State)
-        .FirstOrDefault();
-
-    public unsafe byte GetOccultCrescentEventProgress(ushort eventID)
-        => PublicContentOccultCrescent.GetInstance()->DynamicEventContainer.Events.ToArray()
-        .Where(ce => ce.EventType == eventID)
-        .Select(ce => ce.Progress)
-        .FirstOrDefault();
+    public unsafe string GetOccultCrescentEventState(ushort eventID) => GetOccultCrescentEventById(eventID).State.ToString();
+    public unsafe string GetOccultCrescentEventName(ushort eventID) => GetOccultCrescentEventById(eventID).Name.ToString();
+    public unsafe float GetOccultCrescentEventLocationX(ushort eventID) => GetOccultCrescentEventById(eventID).MapMarker.Position.X;
+    public unsafe float GetOccultCrescentEventLocationY(ushort eventID) => GetOccultCrescentEventById(eventID).MapMarker.Position.Y;
+    public unsafe float GetOccultCrescentEventLocationZ(ushort eventID) => GetOccultCrescentEventById(eventID).MapMarker.Position.Z;
+    public unsafe int GetOccultCrescentEventStartTimestamp(ushort eventID) => GetOccultCrescentEventById(eventID).StartTimestamp;
+    public unsafe uint GetOccultCrescentEventSecondsLeft(ushort eventID) => GetOccultCrescentEventById(eventID).SecondsLeft;
+    public unsafe uint GetOccultCrescentEventSecondsDuration(ushort eventID) => GetOccultCrescentEventById(eventID).SecondsDuration;
+    public unsafe byte GetOccultCrescentEventProgress(ushort eventID) => GetOccultCrescentEventById(eventID).Progress;
     #endregion
 
     public float DistanceBetween(float x1, float y1, float z1, float x2, float y2, float z2) => Vector3.Distance(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2));
