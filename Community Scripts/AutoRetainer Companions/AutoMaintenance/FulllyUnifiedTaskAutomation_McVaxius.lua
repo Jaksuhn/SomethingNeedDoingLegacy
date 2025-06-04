@@ -117,6 +117,7 @@ yield("/echo Fully Unified Task Automation (F.U.T.A.) atools database updated")
 yield("/echo Non Aggregated Recursive Integration (N.A.R.I.) Initializing .....")
 ----------------------------------
 
+RestoreYesAlready() --bring it back so we can do stuff
 --Script+ar breaker stuff force fixed
 RestoreYesAlready()
 yield("/bmrai off")
@@ -152,7 +153,7 @@ FUTA_defaults = {
 --		{"CLEAN", 100, 0, 0, 50},					--Y--{}[i][3][1..5]--chance to do random cleaning/100 if 100 it will be changed to illegalcleaningresetvalue(default 3) after 1 run, process_gc_rank = 0=no,1=yes. expert_hack = 0=no,1=yes. clean_inventory = 0=no, >0 check inventory slots free and try to clean out inventory., set [5] to -1 if you want to disable gc cleaning for this char
 		{"FUEL", 0, 0},								--Y--{}[i][4][1..3]--fuel safety stock trigger, fuel to buy up to i[4][3] amount when hitting i[4][2] amount or lower leave i[4][2] at 0 if you dont want it to process this
 		{"TT", 0, 0},								--N--{}[i][5][1..3]--minutes of TT, npc to play 1= roe 2= manservant
-		{"CUFF", 0},						    	--N--{}[i][6][1..2]--minutes of cufff-a-cur to run . assumes in front of an "entrance"
+		{"CUFF", 0},						    	--Y--{}[i][6][1..2]--auto equip related. if this is anything other than 0, it will try to iterate from /gearset change x  where x is 1 to CUFF. don't overuse this. use it on specific chars like raid alts only. as it will triggger EVERYTIME The gearset updater function runs.  this one only really matters for FUTA_GC anyways as that is the moment when gearsets become important
 		{"MRK", 0},									--Y--{}[i][7][1..2]--the artisan list ID to trigger after each QV check on this char, just make an artisan list with magitek repair mats and put the ID there
 		{"FCB", "nothing", "nothing"},				--N--{}[i][8][1..3]--refresh FC buffs if they have 1 or less hours remaining on them. (remove and re-assign)
 		{"PHV", 0, 100},							--Y--{}[i][9][1..3]--0 = no personal house 1 = has a personal house, personal house visit counter, once it reaches {}[][][2] it will reset to 1 after a visit, each ar completion will +1 it
@@ -470,7 +471,7 @@ if wheeequeheeheheheheheehhhee == 0 then
 		if (GetInventoryFreeSlotCount() < FUTA_processors[hoo_arr_weeeeee][3][5] and FUTA_processors[hoo_arr_weeeeee][3][5] > 0 or GetItemCount(21072) < venture_cleaning) and FUTA_processors[hoo_arr_weeeeee][3][5] > 0 then
 			yield("/echo Attempting to clean inventory @ an npc and or retainerbell and or desynthing (not yet)")
 			delete_my_items_please(do_we_discard)
-			yield("/itemsell") --npc AND retainer selling
+			--*if there is a bell nearby we should probably go to it. also this should be moved to _functions.lua
 			yield("/ays itemsell") --npc AND retainer selling
 		end
 		if (GetInventoryFreeSlotCount() < FUTA_processors[hoo_arr_weeeeee][3][5] and FUTA_processors[hoo_arr_weeeeee][3][5] > 0 or GetItemCount(21072) < venture_cleaning) and FUTA_processors[hoo_arr_weeeeee][3][5] > 0 then
@@ -601,3 +602,4 @@ if wheeequeheeheheheheheehhhee == 1 then
 	yield("/ays multi e") --if we had to toggle AR
 end
 --yield("/pcraft stop") --uncomment this if you want it to clear snd errors after script run
+PauseYesAlready() --we dont need this unless we do then plugin/etc will turn it on - this is so that questionable x cbt doesn't break for seasonals

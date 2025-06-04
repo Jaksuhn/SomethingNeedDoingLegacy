@@ -25,6 +25,10 @@ Proceed to the next floor with your current party?
 Exiting the area with a full inventory may result in the loss of rewards. Record progress and leave the area?
 --deep dungeon requires VBM. BMR **WILL** crash your client without any logs or crash dump
 			--deep dungeon requires VBM. BMR **WILL** crash your client without any logs or crash dump
+
+additional config -> READ THE FRENRIDER CONFIG REQUIREMENTS - its the same
+here:
+https://github.com/Jaksuhn/SomethingNeedDoing/blob/master/Community%20Scripts/Dungeons/frenrider/frenrider_McVaxius.lua
 			
 --]]
 

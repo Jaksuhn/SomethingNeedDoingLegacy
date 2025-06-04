@@ -267,25 +267,34 @@ function ZoneTransition()
 end
 
 function WalkToGC()
+	yield("/echo processing GC travel request....")
     if GetPlayerGC() == 1 then --toilet
-        if GetZoneID() ~= 128 then
-			yield("/li limsa")
-			yield("/li The Aftcastle") 
+        if GetZoneID() ~= 129 and GetZoneID() ~= 128 then
+			yield("/tp limsa")
+			yield("/echo attempting to tp to limsa")
 		    ZoneTransition()
 			toiletvisitor = 0
-			while GetZoneID() ~= 128 do  --sometimes things get stuck in limsa or pre-limsa this should solve it.
-				toiletvisitor = toiletvisitor + 1
-				if toiletvisitor > 5 then
-					yield("/pcraft stop")
-				end
-				yield("/li limsa")
-				visland_stop_moving()
-				yield("/li The Aftcastle") 
+			while GetZoneID() ~= 129 do  --sometimes things get stuck in limsa or pre-limsa this should solve it.
+				yield("/tp limsa")
 				ZoneTransition()
 			end
+			yield("/echo we in limsa")
+			yield("/wait 5")
+			while GetZoneID() ~= 128 do  --sometimes things get stuck in limsa or pre-limsa this should solve it.
+				toiletvisitor = toiletvisitor + 1
+				if toiletvisitor > 10 then
+					yield("/pcraft stop")
+					yield("/vnav stop")
+				end
+				yield("/li aftcastle") 
+				yield("/wait 5")
+				ZoneTransition()
+			end
+			yield("/echo we in upper decks")
 			zungazunga()
 			if movementtype == 1 then --visland hackery
 				yield("/visland exectemponce H4sIAAAAAAAACu2Wy07DMBBF/2XWkRU/Y2eHClQVaikFqTzEwlBXtZTEpXFAqOq/44ZE9LFDWSYrz53J6PrIGnsLE50bSGE4yGxeaohguHHVOigTV5gQzvX32tnCl5C+bGHqSuutKyDdwiOkWCEuZcIieIKUxSiO4BnShKCEYUV3IQpNRpeQhsRML2wVutB91dh9mtwUvs5MtV8tbbGAdKmz0kQwKrzZ6Hc/t3512/x+qDWeg7ty5b7aTLBVnrWoveIIrnLnWycjb/JmeVFXNMFdZUp/uL43H3Uwdm+NfO/deuCKRQMhKDc2ywauarYyc5U3x/bm2vo/X/vo2m2Oe+zFB5ubcaiLd9EZZsKRiqmK5QlniiRjuOfcFWeaIBnz5IwypxwT0R/njjAzgaSQmIsaNFVIhY+3sBnBVLAedkewhUAsID2b0JSJfnJ0NjkSjkigfHoRUkQEUbg/zB1hVhRRoqTgLWeScJr8subh0cFi2bP+F+vX3Q9/zfhXCwoAAA==")
+				--yield("/vnav moveto") --wtf is this
 				visland_stop_moving()
 			end
 		end
@@ -293,8 +302,12 @@ function WalkToGC()
 			WalkTo(94, 40.5, 74.5)
 		end
     elseif GetPlayerGC() == 2 then --vampire coven
+		while GetZoneID() ~= 132 do
+			yield("/tp grid")
+		    ZoneTransition()
+		end
 		if movementtype == 1 then --visland hackery
-			yield("/li Archers' Guild") 
+			yield("/li archers") 
 		    ZoneTransition()
 			yield("/visland exectemponce H4sIAAAAAAAACu2ZTW/bMAyG/4vOKUGJokT5NnRbUQztunZA94EdssVdDTRxlzgbhqL/ffRXP7CdBh11M2VHoJ+8eE1Sd+Z0ua5NZY4Ov2+blVmYo227v9WF03ZTa3i5/H3bNptuZ6rPd+as3TVd025MdWc+mMp6gRREFuajqQ4QKDCLtbwwn0wlBIFiTPca6V7HL02FC3O+XDV73YxAg5P2Z72uN91w52zZXV81m5WprpY3u3phjjddvV1+6y6b7vrt9POna1PmmuTuuv0139Hsdn9tMaRsF+bVuu3mTI67ej1dvhiemIJ3+3rXPb2+qH8MwUn7dVq+6Nrbw3azmljoypvm5uaw3U+vct7uu/p5epfLpnvMq49et9vne/SL75t1faLP4f3ib9pOIEQf3IwbIwZFHgfcMQFah6HgzoXbekAXgwsPvMX7INGNvB1EywV3PtzqH8k6P9BW2APl4IEYrRRV58KMEUiCpQmzw6Q2IgNsFnD6DxRR56Wtvj1atgrcpuBp/D6yatwic5F2JtiJgaI4HB1E7ZkT+TB+HclDQC/FR3LBFobgUhpZE3hkN5iKstYyJXr2vig7F+zAkKLEgbWFIIgcRssmBFW5wi8ukok1B3Ae/ezYQekqe5ppE1GKRdm5aHsPTCh9DzN4NvuUAobRRyxof4MFdjbYDgQTyT9Y2wQxavfui49kgk064bCB7GTaY9PoSI08BSqUM1FWj3CCkWfKVgvs+MCamC0W2Pm6GW1gtMrrG5hxIpISOnI8WwglH22xkFy8D7zW1T7JzNsBueTF+pE3QwwoEouZ5OLtELRHdNOA1YMldP34r6dNIKrtMs7Op27SPtEFbctn3E766eqkbgtiQ3Kl+svGm0kJE0ea3URsfz4z6RsholYmZaCdjXewYJmJJn1rp44auL6P788PgEPSqLh3Nt4RtLl5LE703IBJHWbAfSDq3+hj0XdO3iye7RPegj7wzNt6F32pTv6P95f7P8KvqWabHwAA")
 			visland_stop_moving()
@@ -303,8 +316,12 @@ function WalkToGC()
 			WalkTo(-68.5, -0.5, -8.5)
 		end
     elseif GetPlayerGC() == 3 then --best place in game
+		while GetZoneID() ~= 130 do
+			yield("/tp ul'dah")
+		    ZoneTransition()
+		end
 		if movementtype == 1 then --visland hackery
-			yield("/li Thaumaturges' Guild") 
+			yield("/li thaumaturge") 
 		    ZoneTransition()
 			yield("/visland exectemponce H4sIAAAAAAAACu2WSWvDMBCF/8ucXWFJI8v2raQLoaQ7pAs9uI1CBLGVxnJLCfnvnTgKTZdT8dE+6b2Rh6cPMWgF50VpIIfTQTOfQASnS9csSJ+7ypAcFx8LZytfQ/64gktXW29dBfkK7iA/4EoxybnECO4h58jiWEXwADkmLFGayzUpajQ8gjyO4LqY2IY6SUZi5N5MaSrfVi4LP5vaagL5tJjXJoJh5c2yePFj62cX4fd9L6SmhPXMve8qFK3+1aLNyyM4Lp3fJRl6U4blYbsjiKvG1H5/fWNeWzFyz8G+8W4xcNUkgCDnzM7nA9eEo1y7xpvv8caF9V+5NurELb/32Ji3tjQj2hevoz9Qo2KxEkptUYsNQgLNU4YpatWT7pB0xhQK/EH6gCdMaMGl7i91Z6hlxhKOQv9ALemuo85S1aPuDLVARoOaJnbLGneoNdmJFog96u5QayZRpRnuUGf0od4CzwRLBZWTHnh3E1swjsQ08OYEPNUyjO1YsSxBepn0wP8F/Gn9CUAVPgMlCgAA")
 			visland_stop_moving()
@@ -336,20 +353,25 @@ function CharacterSafeWait()
 	 --ZoneTransition()
 end
 
+function force_equip()
+ if do_we_force_equip == 1 then
+	yield("/echo Forced equipment update has begun - hopefully you have /equiprecommended enabled and /updategearset in /tweaks, aka SimpleTweaks 1PP Plugin from Caraxi")
+	yield("/equipguud") --dont worry about this just some personal thing i did becuase im silly
+	yield("/equiprecommended")
+	yield("/character")
+	if IsAddonReady("Character") then yield("/callback Character true 15") end
+	yield("/wait 0.5")
+	if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
+	yield("/character")
+	if IsAddonReady("Character") then yield("/callback Character true 15") end
+	if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
+	yield("/updategearset")
+	yield("/wait 3")
+ end
+end
+
 function visland_stop_moving()
  do_we_force_equip = force_equipstuff or 1  --default is on, unless we specify the global force_equipstuff in the calling script
- if do_we_force_equip == 1 then
-	 yield("/equipguud")
-	 yield("/equiprecommended")
-	 yield("/character")
-	 if IsAddonReady("Character") then yield("/callback Character true 15") end
-	 yield("/wait 0.5")
-	 if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-	 yield("/character")
-	 if IsAddonReady("Character") then yield("/callback Character true 15") end
-	 if IsAddonReady("SelectYesno") then yield("/callback SelectYesno true 0") end
-	 yield("/wait 3")
- end
  muuv = 1
  muuvstop = 0
  muuvX = GetPlayerRawXPos()
@@ -375,16 +397,20 @@ function visland_stop_moving()
  yield("/echo movement stopped safely - script proceeding to next bit")
  yield("/visland stop")
  yield("/vnavmesh stop")
+ yield("/automove off")
  yield("/wait 1")
  --added becuase simpletweaks is slow to update :(
+ --[[
  if do_we_force_equip == 1 then
-	 yield("/character")
-	 yield("/wait 1")
- 	 if IsAddonReady("Character") then yield("/callback Character true 12") end
-	 yield("/wait 1")
-	 yield("/callback RecommendEquip true 0")
-	 yield("/wait 1")
+	yield("/character")
+	yield("/wait 1")
+ 	if IsAddonReady("Character") then yield("/callback Character true 12") end
+	yield("/wait 1")
+	yield("/callback RecommendEquip true 0")
+	yield("/wait 1")
  end
+ --]]
+ force_equip()
 end
 
 function return_to_limsa_bell()
@@ -935,9 +961,33 @@ function check_ro_helm()
 	end
 end
 
+function _distance(x1, y1, z1, x2, y2, z2) --not wanting overlap with script distance()
+	if type(x1) ~= "number" then x1 = 0 end
+	if type(y1) ~= "number" then y1 = 0 end
+	if type(z1) ~= "number" then z1 = 0 end
+	if type(x2) ~= "number" then x2 = 0 end
+	if type(y2) ~= "number" then y2	= 0 end
+	if type(z2) ~= "number" then z2 = 0 end
+	zoobz = math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+	if type(zoobz) ~= "number" then
+		zoobz = 0
+	end
+    --return math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+    return zoobz
+end
+
 function delete_my_items_please(how)
 	if how == 0 then
 		yield("/echo not deleting or desynthing items")
+		--* here we can check for distance to a retainer bell and go to it if its within 10 yalms
+		yield("/target bell")
+		yield("/wait 1")
+		nemm = "Summoning Bell"
+		poostance = _distance(GetPlayerRawXPos(), GetPlayerRawYPos(), GetPlayerRawZPos(), GetObjectRawXPos(nemm),GetObjectRawYPos(nemm),GetObjectRawZPos(nemm))
+		if poostance < 11 then
+			yield("/vnav moveto "..GetTargetRawXPos().." "..GetTargetRawYPos().." "..GetTargetRawZPos())
+			yield("/wait 4")
+		end
 	end
 	if how == 1 then
 		yield("/echo Attempting to delete items")

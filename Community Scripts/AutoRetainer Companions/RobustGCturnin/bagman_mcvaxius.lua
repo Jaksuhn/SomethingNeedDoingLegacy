@@ -31,7 +31,7 @@ The Drop Box Race Condition
 Accounts, a, b, c, d.  Say i want to deliver from b,c,d to a
 If the trade window is ever busy or the char is unavailable for some reason (cutscene, not fully loaded).  dropbox will just sortof go into limbo, pretending its processing its queue but never do anything.
 This happens if i have multiple chars trying to dropbox to same destination ( common usecase for sublords )
-Opening trade manually to see if it will jumpstart the continuation of the process does not "solve" it, dropbox needs to be reviewed and fixed
+Opening trade manually to see if it will not jumpstart the continuation of the process,  this needs to be fixed on dropbox side
 
 2. if dropbox isnt on the item tab, nothing will work.
 

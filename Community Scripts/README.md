@@ -17,3 +17,5 @@ Many of these were originally posted to [Liza's Discord](https://discord.com/inv
 [Ice](https://github.com/LeontopodiumNivale14/SND-Scripts/tree/main)
 
 [Prawellp](https://github.com/Prawellp/FFXIV-SND/)
+
+[WigglyMuffin](https://github.com/WigglyMuffin/SNDScripts/tree/main)

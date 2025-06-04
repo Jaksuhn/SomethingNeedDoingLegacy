@@ -23,7 +23,7 @@ fcpoint_min   = 500000 --the min fc points required to buy fc buffs. i set it to
 ----------------------
 --Refueling Configs --
 ----------------------
-restock_fuel  = 1111 --0=don't do anything, n>0 -> if we have less ceruleum fuel than this amount on a character that has repair materials, restock up to at least the restock_amt value on next line
+restock_fuel  =  666 --0=don't do anything, n>0 -> if we have less ceruleum fuel than this amount on a character that has repair materials, restock up to at least the restock_amt value on next line
 restock_amt   = 6666 --n>0 minimum amount of total fuel to reach, when restocking
 --------------------
 --Process Configs --
@@ -188,6 +188,7 @@ function Final_GC_Cleaning()
 						yield("/wait 0.5")
 						yield("/automove")
 						yield("/wait 2")
+						yield("/automove off")
 						yield("/interact")
 						yield("/wait 2")
 						yield("/callback SelectString true 1")
@@ -208,6 +209,7 @@ function Final_GC_Cleaning()
 						yield("/wait 1")
 						yield("/callback SelectString true 0")
 						yield("/wait 1")
+						yield("/automove off")
 
 						buycount = 0
 						while (buycount < buymax) do
@@ -231,10 +233,24 @@ function Final_GC_Cleaning()
 		yield("/wait 0.5")
 		yield("/automove")
 		yield("/wait 2")
+		yield("/automove off")
 		RestoreYesAlready()
 		ClearTarget()
 	end
 
+	--before any of this. let us check the CUFF var to see if we need to do equipmentationism
+	--this works but it runs against the desk for a while for some reason?!?!?!?
+	if FUTA_processors[hoo_arr_weeeeee][6][2] > 0 then
+		sixtwo = 0
+		while sixtwo < FUTA_processors[hoo_arr_weeeeee][6][2] do
+			sixtwohehe = sixtwo + 1
+			yield("/echo attempting to pick gearset -> "..sixtwohehe)
+			yield("/gearset change "..sixtwohehe)
+			yield("/wait 3")
+			force_equip()
+			sixtwo = sixtwo + 1
+		end
+	end
 	--deliveroo i hack you
 	dellycounter = 100
 	if FUTA_processors[hoo_arr_weeeeee][3][4] == 1 then
@@ -496,8 +512,8 @@ function FUTA_robust_gc()
 	end
 	weclean = 0
 	if process_players == 1  then
-		TeleportToGCTown()
-		ZoneTransition()
+		--TeleportToGCTown()
+		--ZoneTransition()
 		yield("/echo Walk to GC attempt 1")
 		yield("/wait 2")
 		WalkToGC()
