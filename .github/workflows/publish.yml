@@ -65,11 +65,12 @@ jobs:
 
       - name: Download Dalamud Latest
         run: |
-          if [ "${{ steps.latest_track.outputs.result }}" == "release" ]; then
-              wget https://goatcorp.github.io/dalamud-distrib/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
-          else
-              wget https://goatcorp.github.io/dalamud-distrib/${{ steps.latest_track.outputs.result }}/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
-          fi
+          # if [ "${{ steps.latest_track.outputs.result }}" == "release" ]; then
+          #     wget https://goatcorp.github.io/dalamud-distrib/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
+          # else
+          #     wget https://goatcorp.github.io/dalamud-distrib/${{ steps.latest_track.outputs.result }}/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
+          # fi
+          wget https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
           unzip ${{ env.DALAMUD_HOME }}.zip -d ${{ env.DALAMUD_HOME }}
 
       - name: Restore Project
