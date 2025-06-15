@@ -10,4 +10,17 @@ public class SNDProvider
     [EzIPC] public void Resume() => Service.MacroManager.Resume();
     [EzIPC] public void Stop() => Service.MacroManager.Stop();
     [EzIPC] public void RunByName(string macroName) => C.GetAllNodes().OfType<MacroNode>().FirstOrDefault(macro => macro?.Name == macroName, null)?.Run();
+
+    [EzIPC]
+    public void AddRequiredLuaPath(string path)
+    {
+        Svc.Log.Info($"Adding path: {path}");
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        if (!C.ExternalLuaRequirePaths.Contains(path))
+        {
+            C.ExternalLuaRequirePaths.Add(path);
+        }
+    }
 }

@@ -74,7 +74,12 @@ public class Config : IEzConfig
     /// <summary>
     /// Gets or sets the paths that lua macros will use when requiring files
     /// </summary>
-    public string[] LuaRequirePaths { get; set; } = [];
+    public List<string> LuaRequirePaths { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the paths that lua macros will use when requiring files, set via IPC
+    /// </summary>
+    public List<string> ExternalLuaRequirePaths { get; set; } = [];
 
     public bool UseMacroFileSystem { get; set; } = false;
 

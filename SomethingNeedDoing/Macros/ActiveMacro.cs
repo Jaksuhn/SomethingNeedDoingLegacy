@@ -264,6 +264,9 @@ internal partial class ActiveMacro : IDisposable
         foreach (var p in typeof(Svc).GetProperties())
             lua[p.Name] = p.GetValue(typeof(Svc));
 
+        foreach (var path in C.ExternalLuaRequirePaths)
+            lua.DoString($"table.insert(snd.require.paths, '{path}')");
+
         foreach (var path in C.LuaRequirePaths)
             lua.DoString($"table.insert(snd.require.paths, '{path}')");
 
