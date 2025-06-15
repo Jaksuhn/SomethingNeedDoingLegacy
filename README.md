@@ -1,4 +1,4 @@
-# NOTHING THAT INVOLVES GAMEOBJECTS IS WORKING AT THE MOMENT. I AM AWARE. A FIX WILL BE OUT SOON
+# This repo will be archived following the patch 7.25 hotfix. The plugin is still active, and the rewrite can be found [here](https://github.com/Jaksuhn/SomethingNeedDoing)
 
 ## Something Need Doing
 
